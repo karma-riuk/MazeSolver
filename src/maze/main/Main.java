@@ -24,6 +24,7 @@ public class Main {
             System.out.println("ERROR: image not found");
         }
 
+        //bla
         int dx, dy; 
         dx = (int) width / 2-img.getWidth()/2;
         dy = (int) height / 2-img.getHeight()/2;
