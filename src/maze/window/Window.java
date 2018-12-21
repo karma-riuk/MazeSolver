@@ -10,6 +10,9 @@ public class Window {
     private final java.awt.Canvas canvas;
     private final JFrame frame;
 
+    // State information
+	private volatile boolean closeRequested;
+
     public Window(String title, int width, int height){
         // Create Swing canvas
         canvas = new java.awt.Canvas();
@@ -19,7 +22,7 @@ public class Window {
 		canvas.setBackground(Color.WHITE);
 
         // Create Swing frame
-        JFrame frame = new JFrame(title);
+        frame = new JFrame(title);
         frame.add(canvas);
 
         // Handle close request
@@ -28,14 +31,26 @@ public class Window {
             public void windowClosing(WindowEvent we){
                 closeRequested = true;
             }
-        }
+        };
         frame.addWindowListener(windowAdapter);
         
         // Show frame
         frame.pack();
         frame.setSize(width, height);
+        frame.setLocationRelativeTo(null);
         frame.setResizable(false);
         frame.setVisible(true);
     }
 
+    public java.awt.Canvas getCanvas(){
+        return this.canvas;
+    }
+
+    public boolean isCloseRequested(){
+        return closeRequested;
+    }
+    
+    public void dispose(){
+        frame.dispose();
+    }
 }
