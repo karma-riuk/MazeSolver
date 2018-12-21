@@ -1,38 +1,30 @@
 package maze.main;
 
+import maze.maze.Maze;
 import maze.window.Window;
-
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.awt.image.BufferedImage;
-import java.awt.Graphics;
 
 public class Main {
     public static void main(String[] args) {
+        /*---------------- Variable declaration ----------------*/
+        // info on the window
         int width, height;
-        width = 750;
-        height = 750;
+        Window window;
+        Maze maze;
 
+        /*---------------- Variable initialisation ----------------*/
+        width = 500;
+        height = 500;
 
-        Window window = new Window("Main panel", width, height);
-        Graphics graphics = window.getCanvas().getGraphics();
+        window = new Window("Main panel", width, height);
 
-        BufferedImage img = null;
+        maze = new Maze("tiny");
+
+        /*---------------- Code ----------------*/
         try{
-            img = ImageIO.read(new File("res/maze.png"));
-        }catch (Exception e){
-            System.out.println("ERROR: image not found");
-        }
+            window.begin(maze);
 
-        //bla
-        int dx, dy; 
-        dx = (int) width / 2-img.getWidth()/2;
-        dy = (int) height / 2-img.getHeight()/2;
-
-        graphics.drawImage(img, dx, dy, null);
-        try{
-            
             while(!window.isCloseRequested()){
+                int a=0;
             }
         }
         finally{
