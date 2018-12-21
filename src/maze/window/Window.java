@@ -63,19 +63,29 @@ public class Window {
         frame.setVisible(true);
     }
 
-    public void begin(Maze maze) throws ImageException{
+    /**
+     * Draw the maze in the window
+     * @param maze (Maze): the maze to be drawn
+     */
+    public void draw(Maze maze, int scaleFactor){
         int dx, dy;
 
-        maze.setScaleFactor(15);
+        maze.setScaleFactor(scaleFactor);
 
         BufferedImage img = maze.getImage();
 
-        dx =  width / 2-img.getWidth()/2;
-        dy =  height / 2-img.getHeight()/2;
+        dx = (width -img.getWidth())/2;
+        dy = (height-img.getHeight())/2;
 
         canvas.getGraphics().drawImage(img, dx, dy, null);
+    }
 
-
+    /**
+     * Overload of the draw method, if no scaleFactor is given, default is 1
+     * @param maze
+     */
+    public void draw(Maze maze){
+        this.draw(maze, 1);
     }
 
 

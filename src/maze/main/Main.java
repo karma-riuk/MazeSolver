@@ -1,31 +1,34 @@
 package maze.main;
 
+import maze.exceptions.MazeException;
 import maze.maze.Maze;
 import maze.window.Window;
 
+import java.util.concurrent.TimeUnit;
+
 public class Main {
     public static void main(String[] args) {
-        /*---------------- Variable declaration ----------------*/
-        // info on the window
-        int width, height;
-        Window window;
-        Maze maze;
-
         /*---------------- Variable initialisation ----------------*/
-        width = 500;
-        height = 500;
+        // info on the window
+        int windowWidth = 500;
+        int windowHeight = 500;
 
-        window = new Window("Main panel", width, height);
+        int mazeSize = 300;
 
-        maze = new Maze("tiny");
+        Window window = new Window("Main panel", windowWidth, windowHeight);
+
+        Maze maze = new Maze("tiny");
 
         /*---------------- Code ----------------*/
-        try{
-            window.begin(maze);
+        try {
+            maze.solve();
 
-            while(!window.isCloseRequested()){
-                int a=0;
+            window.draw(maze, mazeSize/maze.getWidth());
+            while (!window.isCloseRequested()) {
+                TimeUnit.MILLISECONDS.sleep(10);
             }
+        }
+        catch (InterruptedException e){
         }
         finally{
             window.dispose();
