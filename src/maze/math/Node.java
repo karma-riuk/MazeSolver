@@ -1,9 +1,6 @@
-package maze.maze;
-
-import maze.math.Coordinates;
+package maze.math;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class Node {
@@ -12,10 +9,10 @@ public class Node {
     // Boolean to know if this cell has been visited or not
     private boolean hasBeenVisited = false;
     // other connections
-    private Node connectionNorth;
-    private Node connectionSouth;
-    private Node connectionEast;
-    private Node connectionWest;
+    private Node connectionNorth = null;
+    private Node connectionSouth = null;
+    private Node connectionEast = null;
+    private Node connectionWest = null;
     private Node[] children;
 
     public Node(Coordinates coordinates){
@@ -28,13 +25,14 @@ public class Node {
         children[3] = connectionEast;
     }
 
-    public List<Node> getChildren(){
-        List<Node> ret = new ArrayList<>();
-        for (Node node: children){
-            if (node != null && node.hasBeenVisited())
-                ret.add(node);
-        }
-        return ret;
+    public Node[] getChildren(){
+//        List<Node> ret = new ArrayList<>();
+//        for (Node node: children){
+////            if (node != null && node.hasBeenVisited())
+//                ret.add(node);
+//        }
+//        return ret;
+        return children;
     }
 
     public void setHasBeenVisited(boolean hasBeenVisited) {
@@ -71,12 +69,13 @@ public class Node {
 
     @Override
     public String toString() {
-        String ret = "Node at "+position+" conntected to ";
-        for (Node n : children){
-            if (n != null)
-                ret += n.getPosition() + ", ";
-        }
-        return ret+" | ";
+//        String ret = "Node at "+position+" conntected to ";
+//        for (Node n : children){
+//            if (n != null)
+//                ret += n.getPosition() + ", ";
+//        }
+//        return ret+" | ";
+        return position.toString();
     }
 }
 

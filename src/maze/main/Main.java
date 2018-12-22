@@ -3,7 +3,10 @@ package maze.main;
 import maze.exceptions.MazeException;
 import maze.maze.Maze;
 import maze.window.Window;
+import maze.solver.*;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class Main {
@@ -13,15 +16,23 @@ public class Main {
         int windowWidth = 500;
         int windowHeight = 500;
 
+        // the size of the maze on the screen
         int mazeSize = 300;
 
+        // creating the window
         Window window = new Window("Main panel", windowWidth, windowHeight);
 
+        // creating the maze
         Maze maze = new Maze("tiny");
 
-        /*---------------- Code ----------------*/
+        // initializing the solver
+        Solver solver = new LeftTurn();
+
+        /*------------------------- Code --------------------------*/
         try {
-            maze.solve();
+            solver.initialiaze(maze);
+
+            solver.solve();
 
             window.draw(maze, mazeSize/maze.getWidth());
             while (!window.isCloseRequested()) {

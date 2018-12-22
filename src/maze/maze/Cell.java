@@ -1,6 +1,7 @@
 package maze.maze;
 
 import maze.math.Coordinates;
+import maze.math.Node;
 
 public class Cell{
     // Coordinates

@@ -3,6 +3,8 @@ package maze.maze;
 import maze.exceptions.ImageException;
 import maze.exceptions.MazeException;
 import maze.math.Coordinates;
+import maze.math.Node;
+import maze.solver.*;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -55,6 +57,7 @@ public class Maze {
                     maze[y][x] = new Cell(new Coordinates(x, y), Cell.CellType.PATH);
             }
         }
+        this.transform();
     }
 
     /**
@@ -79,32 +82,29 @@ public class Maze {
 
     }
 
-    public void solve() throws MazeException {
+    /**
+     * Creates the nodes and links them together. To create them, the program cycles through the maze and checks some conditions
+     * (to know what these conditions are, check the if statement below). Then, after the program decided that a node should
+     * be created, it search for other nodes (that are above him of to his left) and check if they are linkable, and if so
+     * they get linked.
+     */
+    private void transform() throws MazeException {
         // check if maze satisfies our criteria
         if (!checkMaze())
             throw new MazeException();
 
-        // add to the solution the entry and the exit
-        for (int i = 0; i < width; i++) {
-            if (maze[0][i].getCellType() == Cell.CellType.PATH)
-                solution.add(0, maze[0][i]);
-            if (maze[height-1][i].getCellType() == Cell.CellType.PATH)
-                solution.add(1, maze[height-1][i]);
-        }
-
-        // setting the nodes and linking them together
         Cell.CellType wall = Cell.CellType.WALL;
         Cell.CellType path = Cell.CellType.PATH;
         for (int y = 0; y < height; y++) {
             for (int x = 1; x < width-1; x++) {
                 if ( maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
                         ((y == 0 || y == height-1) && maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == wall) // add the entrance/exit to the nodes
-                        || (maze[y][x-1].getCellType() == wall && maze[y][x+1].getCellType() == path) // start of a corridor (horizontal)
-                        || (maze[y-1][x].getCellType() == wall && maze[y+1][x].getCellType() == path) // start of a corridor (vertical)
-                        || (maze[y][x+1].getCellType() == wall && maze[y][x-1].getCellType() == path) // end of a corridor (horizontal)
-                        || (maze[y+1][x].getCellType() == wall && maze[y-1][x].getCellType() == path) // end of a corridor (vertical)
-                        || (maze[y-1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
-                        || (maze[y+1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
+                                || (maze[y][x-1].getCellType() == wall && maze[y][x+1].getCellType() == path) // start of a corridor (horizontal)
+                                || (maze[y-1][x].getCellType() == wall && maze[y+1][x].getCellType() == path) // start of a corridor (vertical)
+                                || (maze[y][x+1].getCellType() == wall && maze[y][x-1].getCellType() == path) // end of a corridor (horizontal)
+                                || (maze[y+1][x].getCellType() == wall && maze[y-1][x].getCellType() == path) // end of a corridor (vertical)
+                                || (maze[y-1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
+                                || (maze[y+1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
                 )) {
                     Node node = new Node(new Coordinates(x, y)); // creating the node
                     linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
@@ -114,15 +114,18 @@ public class Maze {
                 }
             }
         }
-        System.out.println(this);
     }
 
     private enum SearchOrientation{
         NORTH, WEST
     }
 
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
     /**
-     * Methode to check if a node should accept a link or not, is used in linkNodes(Node node)
+     * Method to check if a node should accept a link or not, is used in linkNodes(Node node)
      * @param y (int): the column we are looking at in the maze
      * @param x (int): the row we are looking at in the maze
      * @param possibleNode (Node): the possible node that could be linked to the node we are currently looking at
@@ -185,6 +188,16 @@ public class Maze {
 
     }
 
+
+    /**
+     * Used by maze.solver.*
+     * @param coordinates (List<Coordinates>): the list of cell coordinates that are part of the solution of the maze
+     */
+    public void addToSolution(List<Coordinates> coordinates){
+        for (Coordinates coordinate : coordinates) {
+            solution.add(solution.size()-1, maze[coordinate.getY()][coordinate.getX()]);
+        }
+    }
     /**
      * Getter for the width of the maze, in number of cells
      * @return (int)
@@ -222,20 +235,12 @@ public class Maze {
 
     @Override
     public String toString() {
-
         String ret = "";
-        int lastRow=0;
-        for (Node n : nodes) {
-            if (lastRow != n.getPosition().getY()) {
-                lastRow = n.getPosition().getY();
-                ret += "\n";
-            }
-            ret += n;
-        }
+
 
 //        for (Cell[] row: maze){
 //            for (Cell cell: row) {
-//                i (cell.getCellType() == Cell.CellType.WALL)
+//                if (cell.getCellType() == Cell.CellType.WALL)
 //                    ret += "##";
 //                else if (cell.getNode() != null)
 //                    ret += "()";
@@ -244,6 +249,15 @@ public class Maze {
 //            }
 //            ret += "\n";
 //        }
+
+        int lastRow=0;
+        for (Node n : nodes) {
+            if (lastRow != n.getPosition().getY()) {
+                lastRow = n.getPosition().getY();
+                ret += "\n";
+            }
+            ret += n;
+        }
         return ret;
     }
 }

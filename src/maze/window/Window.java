@@ -63,6 +63,9 @@ public class Window {
         frame.setVisible(true);
     }
 
+    // TODO: create a Text graphics entity to show when the solver is still solving and when it's done
+    // TODO: create an update method to check if space is pressed, to show the solution and update the text from solving to done
+
     /**
      * Draw the maze in the window
      * @param maze (Maze): the maze to be drawn
