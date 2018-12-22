@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.WeakHashMap;
 
 public class Maze {
     /// Maze information
@@ -93,12 +92,9 @@ public class Maze {
                 solution.add(1, maze[height-1][i]);
         }
 
-        // setting the nodes
-        // for now, just creating the node to see if they get created corrected correctly
-        // then TODO add the links betweeen the nodes
+        // setting the nodes and linking them together
         Cell.CellType wall = Cell.CellType.WALL;
         Cell.CellType path = Cell.CellType.PATH;
-        int n = 0;
         for (int y = 0; y < height; y++) {
             for (int x = 1; x < width-1; x++) {
                 if ( maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
@@ -110,14 +106,83 @@ public class Maze {
                         || (maze[y-1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
                         || (maze[y+1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
                 )) {
-                    Node node = new Node(new Coordinates(x, y));
+                    Node node = new Node(new Coordinates(x, y)); // creating the node
+                    linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
+                    linkNode(node, SearchOrientation.WEST); // searches for possible connection from west
                     maze[y][x].setNode(node);
                     nodes.add(node);
-                    n++;
                 }
             }
         }
         System.out.println(this);
+    }
+
+    private enum SearchOrientation{
+        NORTH, WEST
+    }
+
+    private Object[] conditions(int y, int x, Node possibleNode, boolean isBlocked) {
+        Object[] ret = new Object[2];
+        Node possibleNode1 = possibleNode;
+        boolean isBlocked1 = isBlocked;
+        if (maze[y][x].getNode() != null) {
+            possibleNode1 = maze[y][x].getNode();
+            isBlocked1 = false;
+        } else if (possibleNode != null && maze[y][x].getCellType() == Cell.CellType.WALL){
+            possibleNode1 = null;
+            isBlocked1 = true;
+        }
+        ret[0] = possibleNode1;
+        ret[1] = isBlocked1;
+        return ret;
+    }
+
+    private void linkNode(Node node, SearchOrientation orientation){
+        boolean isBlocked = false;
+        Node possibleNode = null;
+        int maxCount, other;
+        if (orientation == SearchOrientation.NORTH) {
+            maxCount = node.getPosition().getY();
+            other = node.getPosition().getX();
+        } else {
+            maxCount = node.getPosition().getX();
+            other = node.getPosition().getY();
+        }
+        Object[] result;
+        for (int i = 0; i < maxCount; i++){
+            if (orientation == SearchOrientation.NORTH){
+                result = conditions(i, other, possibleNode, isBlocked);
+
+//                if (maze[i][other].getNode() != null)
+//                    possibleNode = maze[i][other].getNode();
+//
+//                else if (possibleNode != null && maze[i][other].getCellType() == Cell.CellType.WALL)
+//                    isBlocked = true;
+            }
+            else{
+//                if (maze[other][i].getNode() != null)
+//                    possibleNode = maze[other][i].getNode();
+//                else if (possibleNode != null && maze[other][i].getCellType() == Cell.CellType.WALL)
+//                    isBlocked = true;
+                result = conditions(other, i, possibleNode, isBlocked);
+            }
+            possibleNode = (Node) result[0];
+            isBlocked = (boolean) result[1];
+        }
+        if (orientation == SearchOrientation.NORTH) {
+            if (!isBlocked && possibleNode != null) {
+                node.setConnectionNorth(possibleNode);
+                possibleNode.setConnectionSouth(node);
+            }
+        }else{
+            if (!isBlocked && possibleNode != null) {
+                node.setConnectionWest(possibleNode);
+                possibleNode.setConnectionEast(node);
+            }
+
+        }
+
+
     }
 
     /**
@@ -157,18 +222,28 @@ public class Maze {
 
     @Override
     public String toString() {
+
         String ret = "";
-        for (Cell[] row: maze){
-            for (Cell cell: row) {
-                if (cell.getCellType() == Cell.CellType.WALL)
-                    ret += "##";
-                else if (cell.getNode() != null)
-                    ret += "[]";
-                else
-                    ret += "  ";
+        int lastRow=0;
+        for (Node n : nodes) {
+            if (lastRow != n.getPosition().getY()) {
+                lastRow = n.getPosition().getY();
+                ret += "\n";
             }
-            ret += "\n";
+            ret += n;
         }
+
+//        for (Cell[] row: maze){
+//            for (Cell cell: row) {
+//                i (cell.getCellType() == Cell.CellType.WALL)
+//                    ret += "##";
+//                else if (cell.getNode() != null)
+//                    ret += "()";
+//                else
+//                    ret += "  ";
+//            }
+//            ret += "\n";
+//        }
         return ret;
     }
 }

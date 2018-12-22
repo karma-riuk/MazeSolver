@@ -31,7 +31,7 @@ public class Node {
     public List<Node> getChildren(){
         List<Node> ret = new ArrayList<>();
         for (Node node: children){
-            if (node.hasBeenVisited())
+            if (node != null && node.hasBeenVisited())
                 ret.add(node);
         }
         return ret;
@@ -44,20 +44,25 @@ public class Node {
     public boolean hasBeenVisited(){
         return hasBeenVisited;
     }
+
     public void setConnectionEast(Node connectionEast) {
         this.connectionEast = connectionEast;
+        this.children[3] = connectionEast;
     }
 
     public void setConnectionNorth(Node connectionNorth) {
         this.connectionNorth = connectionNorth;
+        this.children[0] = connectionNorth;
     }
 
     public void setConnectionSouth(Node connectionSouth) {
         this.connectionSouth = connectionSouth;
+        this.children[2] = connectionSouth;
     }
 
     public void setConnectionWest(Node connectionWest) {
         this.connectionWest = connectionWest;
+        this.children[1] = connectionWest;
     }
 
     public Coordinates getPosition() {
@@ -66,7 +71,12 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node at "+position;
+        String ret = "Node at "+position+" conntected to ";
+        for (Node n : children){
+            if (n != null)
+                ret += n.getPosition() + ", ";
+        }
+        return ret+" | ";
     }
 }
 

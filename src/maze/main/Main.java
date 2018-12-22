@@ -26,6 +26,7 @@ public class Main {
             window.draw(maze, mazeSize/maze.getWidth());
             while (!window.isCloseRequested()) {
                 TimeUnit.MILLISECONDS.sleep(10);
+
             }
         }
         catch (InterruptedException e){
