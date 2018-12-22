@@ -121,6 +121,14 @@ public class Maze {
         NORTH, WEST
     }
 
+    /**
+     * Methode to check if a node should accept a link or not, is used in linkNodes(Node node)
+     * @param y (int): the column we are looking at in the maze
+     * @param x (int): the row we are looking at in the maze
+     * @param possibleNode (Node): the possible node that could be linked to the node we are currently looking at
+     * @param isBlocked (boolean): boolean to know if there is a wall between 2 nodes
+     * @return (Object[2]): contains the future value that has to be assigned to possibleNode and isBlocked in linkNodes(Node node)
+     */
     private Object[] conditions(int y, int x, Node possibleNode, boolean isBlocked) {
         Object[] ret = new Object[2];
         Node possibleNode1 = possibleNode;
@@ -137,6 +145,13 @@ public class Maze {
         return ret;
     }
 
+    /**
+     * Passes through all the previous cells (above the current cell or to the left of it), checks if there is a node in
+     * one of these cells and checks if there is a wall between them, if there is a node and there is no wall, connect them
+     * together (either West-East or North-South)
+     * @param node (Node): the node we are currently looking at
+     * @param orientation (SearchOrientation): variable to know where we are looking (north or west)
+     */
     private void linkNode(Node node, SearchOrientation orientation){
         boolean isBlocked = false;
         Node possibleNode = null;
@@ -150,36 +165,21 @@ public class Maze {
         }
         Object[] result;
         for (int i = 0; i < maxCount; i++){
-            if (orientation == SearchOrientation.NORTH){
+            if (orientation == SearchOrientation.NORTH)
                 result = conditions(i, other, possibleNode, isBlocked);
-
-//                if (maze[i][other].getNode() != null)
-//                    possibleNode = maze[i][other].getNode();
-//
-//                else if (possibleNode != null && maze[i][other].getCellType() == Cell.CellType.WALL)
-//                    isBlocked = true;
-            }
-            else{
-//                if (maze[other][i].getNode() != null)
-//                    possibleNode = maze[other][i].getNode();
-//                else if (possibleNode != null && maze[other][i].getCellType() == Cell.CellType.WALL)
-//                    isBlocked = true;
+            else
                 result = conditions(other, i, possibleNode, isBlocked);
-            }
             possibleNode = (Node) result[0];
             isBlocked = (boolean) result[1];
         }
-        if (orientation == SearchOrientation.NORTH) {
-            if (!isBlocked && possibleNode != null) {
+        if (!isBlocked && possibleNode != null) {
+            if (orientation == SearchOrientation.NORTH) {
                 node.setConnectionNorth(possibleNode);
                 possibleNode.setConnectionSouth(node);
-            }
-        }else{
-            if (!isBlocked && possibleNode != null) {
+            }else{
                 node.setConnectionWest(possibleNode);
                 possibleNode.setConnectionEast(node);
             }
-
         }
 
 
