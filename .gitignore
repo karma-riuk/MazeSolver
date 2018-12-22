@@ -1,4 +1,5 @@
 .idea/
 bin/
 Makefile
+Maze.iml
 *.swp
