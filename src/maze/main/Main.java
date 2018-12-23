@@ -23,7 +23,7 @@ public class Main {
         Window window = new Window("Main panel", windowWidth, windowHeight);
 
         // creating the maze
-        Maze maze = new Maze("tiny");
+        Maze maze = new Maze("mazesolving/combo400");
 
         // initializing the solver
         Solver solver = new LeftTurn();
@@ -33,11 +33,11 @@ public class Main {
             solver.initialiaze(maze);
 
             solver.solve();
+            maze.makeSolvedImage();
 
             window.draw(maze, mazeSize/maze.getWidth());
             while (!window.isCloseRequested()) {
                 TimeUnit.MILLISECONDS.sleep(10);
-
             }
         }
         catch (InterruptedException e){

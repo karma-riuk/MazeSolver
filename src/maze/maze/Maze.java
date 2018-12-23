@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Maze {
@@ -24,8 +25,11 @@ public class Maze {
     private int height;
     // scale factor
     private int scaleFactor = 1;
-    // image
+    /// images
+    // original maze
     private BufferedImage image;
+    // solved maze
+    private BufferedImage imageSolved;
     // maze structure with cells
     private Cell[][] maze;
     // The solution in coordinates
@@ -41,6 +45,8 @@ public class Maze {
 
         try{
             image = ImageIO.read(new File("res/"+name+".png"));
+//            imageSolved = ImageIO.read(new File("res/"+name+".png"));
+            imageSolved = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_RGB);
         }catch (IOException e){
             throw new ImageException();
         }
@@ -195,9 +201,93 @@ public class Maze {
      */
     public void addToSolution(List<Coordinates> coordinates){
         for (Coordinates coordinate : coordinates) {
-            solution.add(solution.size()-1, maze[coordinate.getY()][coordinate.getX()]);
+            solution.add(maze[coordinate.getY()][coordinate.getX()]);
         }
     }
+
+    public void makeSolvedImage(){
+//        int color = 255<<16;
+//        for (Cell cell : solution) {
+//            imageSolved.setRGB(cell.getCoordinates().getX(), cell.getCoordinates().getY(), color);
+//        }
+
+
+//        int red = 0;
+//        int blue = 255;
+//        int color;
+//        int solutionSize = solution.size();
+//        for (Cell cell : solution) {
+//            color = (red << 16) | blue;
+//            imageSolved.setRGB(cell.getCoordinates().getX(), cell.getCoordinates().getY(), color);
+//            red = (int) (255*((double) solution.indexOf(cell)/solutionSize));
+//            blue = (int) (255*((double) (solutionSize-solution.indexOf(cell))/solutionSize));
+//        }
+
+        int wall = Color.BLACK.getRGB();
+        int path = Color.WHITE.getRGB();
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (maze[y][x].getCellType() == Cell.CellType.WALL)
+                    imageSolved.setRGB(x, y, wall);
+                else
+                    imageSolved.setRGB(x, y, path);
+            }
+        }
+        int red = 0;
+        int blue = 255;
+        int color;
+        int solutionSize = solution.size();
+        for (Cell cell : solution) {
+            color = (red << 16) | blue;
+            imageSolved.setRGB(cell.getCoordinates().getX(), cell.getCoordinates().getY(), color);
+            red = (int) (255*((double) solution.indexOf(cell)/solutionSize));
+            blue = (int) (255*((double) (solutionSize-solution.indexOf(cell))/solutionSize));
+        }
+    }
+
+    public void makeFullSolution(){
+        int i = 0;
+        List<Cell> toBeAdded;
+        while (i < solution.size()-1){
+            toBeAdded = getCorridorBetween(solution.get(i), solution.get(i+1));
+            solution.addAll(i+1, toBeAdded);
+            i += 1+toBeAdded.size();
+        }
+        System.out.println(solution);
+    }
+
+    private List<Cell> getCorridorBetween(Cell cell1, Cell cell2){
+        List<Cell> ret = new ArrayList<>();
+        Coordinates c1 = cell1.getCoordinates();
+        Coordinates c2 = cell2.getCoordinates();
+        Coordinates tmp;
+        if (c1.getX() - c2.getX() == 0 && c1.getY() - c2.getY() == 0) // if the cells are adjascent to each other there is no corridor
+            return ret;
+        else{
+            if (c1.getX() - c2.getX() == 0) { // if the difference between there x is 0, that means they are on the same line
+                if (c1.getY() > c2.getY()){
+                    for (int i = c1.getY()-1; i > c2.getY(); i--)
+                        ret.add(maze[i][c1.getX()]);
+                }
+                else{
+                    for (int i = c1.getY()+1; i < c2.getY(); i++)
+                        ret.add(maze[i][c1.getX()]);
+                }
+            }
+            else if (c1.getY() - c2.getY() == 0){ // if they are not on the same line, then they are on the same column
+                if (c1.getX() > c2.getX()){
+                    for (int i = c1.getX()-1; i > c2.getX(); i--)
+                        ret.add(maze[c1.getY()][i]);
+                }
+                else {
+                    for (int i = c1.getX() + 1; i < c2.getX(); i++)
+                        ret.add(maze[c1.getY()][i]);
+                }
+            }
+            return ret;
+        }
+    }
+
     /**
      * Getter for the width of the maze, in number of cells
      * @return (int)
@@ -214,11 +304,15 @@ public class Maze {
         return height;
     }
 
+    public BufferedImage getImage(){
+        return getImage(image);
+    }
+
     /**
      * Getter for the representation of the maze scale by the scaleFactor
      * @return image (BufferedImage)
      */
-    public BufferedImage getImage(){
+    private BufferedImage getImage(BufferedImage image){
         int newW = width*scaleFactor;
         int newH = height*scaleFactor;
         Image tmp = image.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
@@ -227,6 +321,11 @@ public class Maze {
         g2d.drawImage(tmp, 0, 0, null);
         g2d.dispose();
         return resized;
+
+    }
+
+    public BufferedImage getSolvedImage(){
+        return getImage(imageSolved);
     }
 
     public void setScaleFactor(int scaleFactor) {
@@ -238,26 +337,26 @@ public class Maze {
         String ret = "";
 
 
-//        for (Cell[] row: maze){
-//            for (Cell cell: row) {
-//                if (cell.getCellType() == Cell.CellType.WALL)
-//                    ret += "##";
-//                else if (cell.getNode() != null)
-//                    ret += "()";
-//                else
-//                    ret += "  ";
-//            }
-//            ret += "\n";
-//        }
-
-        int lastRow=0;
-        for (Node n : nodes) {
-            if (lastRow != n.getPosition().getY()) {
-                lastRow = n.getPosition().getY();
-                ret += "\n";
+        for (Cell[] row: maze){
+            for (Cell cell: row) {
+                if (cell.getCellType() == Cell.CellType.WALL)
+                    ret += "##";
+                else if (cell.getNode() != null)
+                    ret += "()";
+                else
+                    ret += "  ";
             }
-            ret += n;
+            ret += "\n";
         }
+
+//        int lastRow=0;
+//        for (Node n : nodes) {
+//            if (lastRow != n.getPosition().getY()) {
+//                lastRow = n.getPosition().getY();
+//                ret += "\n";
+//            }
+//            ret += n;
+//        }
         return ret;
     }
 }

@@ -75,7 +75,8 @@ public class Window {
 
         maze.setScaleFactor(scaleFactor);
 
-        BufferedImage img = maze.getImage();
+//        BufferedImage img = maze.getImage();
+        BufferedImage img = maze.getSolvedImage();
 
         dx = (width -img.getWidth())/2;
         dy = (height-img.getHeight())/2;

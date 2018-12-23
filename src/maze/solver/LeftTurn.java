@@ -40,6 +40,7 @@ public class LeftTurn extends Solver{
             sol.add(node.getPosition());
         }
         maze.addToSolution(sol);
+        maze.makeFullSolution();
     }
 
     private  Orientation leftOf(Orientation o){
@@ -68,7 +69,7 @@ public class LeftTurn extends Solver{
         }
 
         if (leftNode != null && leftNode.equals(end)) {
-            previousNodes.add(node);
+            previousNodes.add(leftNode);
             return true;
         }
         else{
