@@ -19,13 +19,13 @@ public class Main {
         long absStartTime = System.nanoTime();
 
         // The maze we are solving
-        String mazeName = "perfect2k";
+        String mazeName = "braid2k";
 
         // the size of the maze on the screen
 //        float mazeScaleFactor = .1f;
 
         // boolean to know if we reduce the quantity of nodes or not
-        boolean reduce = true;
+        boolean reduce = false;
 
         // creating the maze
         Maze maze = new Maze(mazeName, reduce);

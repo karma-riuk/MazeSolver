@@ -19,14 +19,34 @@ public class DepthFirst extends Solver{
 
     @Override
     public void solve(){
-        goDeep(start);
-        // add the solution to the maze
+        Node curent = start;
+
+        while (curent != end) {
+            curent.setHasBeenVisited(true);
+            if (curent != start && curent != end && culDeSac(curent)) {
+                previousNodes.remove(curent);
+                curent = previousNodes.get(previousNodes.size() - 1);
+            }
+            for (Node child: curent.getChildren()){
+                if (child != null && !child.hasBeenVisited()) {
+                    if (child == end){
+                        previousNodes.add(curent);
+                        previousNodes.add(child);
+                        curent = end;
+                        break;
+                    }
+                    previousNodes.add(curent);
+                    curent = child;
+                    break;
+                }
+            }
+        }
 
         List<Coordinates> sol = new ArrayList<>();
         for (Node node : previousNodes) {
             sol.add(node.getPosition());
         }
-        System.out.println(sol);
+        System.out.println("Solution length: "+ sol.size());
         maze.addToSolution(sol);
         maze.makeFullSolution();
     }
@@ -44,11 +64,12 @@ public class DepthFirst extends Solver{
         }
 
         for (Node child : node.getChildren()) {
-            if (child != null && !child.hasBeenVisited())
-                if(goDeep(child))
+            if (child != null && !child.hasBeenVisited()) {
+                if (goDeep(child))
                     return true;
                 else
                     previousNodes.remove(child);
+            }
         }
         return false;
     }

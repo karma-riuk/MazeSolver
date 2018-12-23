@@ -176,6 +176,7 @@ public class Maze {
             endTime = System.nanoTime();
             System.out.println("Time taken to reduce them: "+ ((endTime - startTime)/1000000000));
         }
+        System.out.println("Nodes count: "+nodes.size());
 //        System.out.println(this);
     }
 
