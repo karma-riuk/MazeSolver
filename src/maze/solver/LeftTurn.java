@@ -2,10 +2,9 @@ package maze.solver;
 
 import maze.math.Coordinates;
 import maze.math.Node;
-import maze.maze.Maze;
+import maze.math.Orientation;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 public class LeftTurn extends Solver{
@@ -17,19 +16,6 @@ public class LeftTurn extends Solver{
         previousOrientation = new ArrayList<>();
     }
 
-    private enum Orientation{
-        NORTH(0), WEST(1), SOUTH(2), EAST(3);
-
-        private int i;
-        Orientation(int i){
-            this.i = i;
-        }
-
-        public int toNumber(){
-            return i;
-        }
-
-    }
     @Override
     public void solve() {
         System.out.println("Possible nodes to explore: "+nodes.size());
@@ -59,7 +45,9 @@ public class LeftTurn extends Solver{
                 lastNode = null;
                 lastOrientation = null;
             }
+
             leftNode = current.getChildren()[curOrientation.toNumber()];
+
             if (current == end){
                 previousNodes.add(current);
                 break;

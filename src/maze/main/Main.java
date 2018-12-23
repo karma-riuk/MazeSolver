@@ -19,7 +19,7 @@ public class Main {
         long absStartTime = System.nanoTime();
 
         // The maze we are solving
-        String mazeName = "perfect4k";
+        String mazeName = "perfect2k";
 
         // the size of the maze on the screen
 //        float mazeScaleFactor = .1f;
@@ -34,7 +34,7 @@ public class Main {
         Window window = new Window(mazeName+" (reduce: "+reduce+")", maze.getNewW()+25, maze.getNewH()+50);
 
         // initializing the solver
-        Solver solver = new LeftTurn();
+        Solver solver = new DepthFirst();
 
         // Variables to know how much time the program took to run
         long startTime;
@@ -67,8 +67,8 @@ public class Main {
             long absEndTime = System.nanoTime();
             System.out.println("\nTime taken to do every thing: "+ ((absEndTime-absStartTime)/1000000000));
 
-            window.draw(maze);
             while (!window.isCloseRequested()) {
+                window.draw(maze);
                 TimeUnit.MILLISECONDS.sleep(10);
             }
         }
