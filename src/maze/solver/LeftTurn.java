@@ -11,6 +11,7 @@ import java.util.List;
 public class LeftTurn extends Solver{
     private List<Node> previousNodes;
     private List<Orientation> previousOrientation;
+
     public LeftTurn(){
         previousNodes = new ArrayList<>();
         previousOrientation = new ArrayList<>();
@@ -31,6 +32,7 @@ public class LeftTurn extends Solver{
     }
     @Override
     public void solve() {
+        System.out.println(nodes.size());
         // start by going left after the start
         goLeft(start, Orientation.SOUTH);
 
@@ -42,6 +44,7 @@ public class LeftTurn extends Solver{
         maze.addToSolution(sol);
         maze.makeFullSolution();
     }
+
 
     private  Orientation leftOf(Orientation o){
         for (Orientation orientation : Orientation.values()) {

@@ -24,6 +24,9 @@ public abstract class Solver {
 
     public void initialiaze(Maze maze){
         this.maze = maze;
+        System.out.println("Transforming maze into nodes...");
+        maze.transform();
+        System.out.println("Done transforming.");
         nodes = maze.getNodes();
         start = nodes.get(0);
         end = nodes.get(nodes.size()-1);

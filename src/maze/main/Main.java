@@ -23,17 +23,23 @@ public class Main {
         Window window = new Window("Main panel", windowWidth, windowHeight);
 
         // creating the maze
-        Maze maze = new Maze("mazesolving/combo400");
+        Maze maze = new Maze("perfect2k", true);
 
         // initializing the solver
         Solver solver = new LeftTurn();
 
         /*------------------------- Code --------------------------*/
         try {
+            System.out.println("Initializing maze...");
             solver.initialiaze(maze);
+            System.out.println("Done initializing.");
 
+            System.out.println("Solving...");
             solver.solve();
+            System.out.println("Done solving.");
+            System.out.println("Creating image of solution...");
             maze.makeSolvedImage();
+            System.out.println("Done creating image.");
 
             window.draw(maze, mazeSize/maze.getWidth());
             while (!window.isCloseRequested()) {

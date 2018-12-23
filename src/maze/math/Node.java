@@ -63,19 +63,23 @@ public class Node {
         this.children[1] = connectionWest;
     }
 
+    public void removeConnectionWithIndex(int index){
+        this.children[index] = null;
+    }
+
     public Coordinates getPosition() {
         return position;
     }
 
     @Override
     public String toString() {
-//        String ret = "Node at "+position+" conntected to ";
-//        for (Node n : children){
-//            if (n != null)
-//                ret += n.getPosition() + ", ";
-//        }
-//        return ret+" | ";
-        return position.toString();
+        String ret = "Node at "+position+" conntected to ";
+        for (Node n : children){
+            if (n != null)
+                ret += n.getPosition() + " ";
+        }
+        return ret+" | ";
+//        return position.toString();
     }
 }
 
