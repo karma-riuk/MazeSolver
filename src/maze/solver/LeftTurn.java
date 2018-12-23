@@ -32,9 +32,63 @@ public class LeftTurn extends Solver{
     }
     @Override
     public void solve() {
-        System.out.println(nodes.size());
+        System.out.println("Possible nodes to explore: "+nodes.size());
         // start by going left after the start
-        goLeft(start, Orientation.SOUTH);
+//        goLeft(start, Orientation.SOUTH);
+
+        previousNodes.add(start);
+        previousOrientation.add(Orientation.SOUTH);
+
+        Node current = start.getChildren()[2];
+        Orientation curOrientation = leftOf(Orientation.SOUTH);
+        previousNodes.add(current);
+        previousOrientation.add(curOrientation);
+
+//        curOrientation = Orientation.EAST;
+//        previousOrientation.add(curOrientation);
+        Node leftNode;
+        Node lastNode;
+        Orientation lastOrientation;
+
+        while (true){
+            current.setHasBeenVisited(true);
+            if (previousNodes.size() > 0) {
+                lastOrientation = previousOrientation.get(previousOrientation.size()-1);
+                lastNode = previousNodes.get(previousNodes.size()-1);
+            }else{
+                lastNode = null;
+                lastOrientation = null;
+            }
+            leftNode = current.getChildren()[curOrientation.toNumber()];
+            if (current == end){
+                previousNodes.add(current);
+                break;
+            }
+
+            if (culDeSac(current)){
+                previousNodes.remove(lastNode);
+                previousOrientation.remove(lastOrientation);
+                current = lastNode;
+                curOrientation = leftOf(lastOrientation);
+                continue;
+            }
+            if (lastNode != current){
+                previousNodes.add(current);
+                previousOrientation.add(curOrientation);
+            }
+            else{
+                previousOrientation.remove(lastOrientation);
+                previousOrientation.add(curOrientation);
+            }
+            if (leftNode == null || leftNode.hasBeenVisited()){
+                curOrientation = leftOf(curOrientation);
+                continue;
+            }
+            current = leftNode;
+            curOrientation = leftOf(curOrientation);
+        }
+
+        System.out.println("Nodes from start to end: "+previousNodes.size());
 
         // add the solution to the maze
         List<Coordinates> sol = new ArrayList<>();
@@ -80,6 +134,7 @@ public class LeftTurn extends Solver{
                 previousNodes.remove(lastNode); // remove last node since it's a cul-de-sac
                 previousOrientation.remove(lastOrientaion); // remove last orientation since it's a cul-de-sac
                 return goLeft(lastNode, leftOf(lastOrientaion));
+//                return false;
             }
             else {
                 if (lastNode != node) {
@@ -106,4 +161,8 @@ public class LeftTurn extends Solver{
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Left-Turn";
+    }
 }

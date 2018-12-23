@@ -70,16 +70,16 @@ public class Window {
      * Draw the maze in the window
      * @param maze (Maze): the maze to be drawn
      */
-    public void draw(Maze maze, int scaleFactor){
+    public void draw(Maze maze){
         int dx, dy;
 
-        maze.setScaleFactor(scaleFactor);
+//        maze.setScaleFactor(scaleFactor);
 
 //        BufferedImage img = maze.getImage();
         BufferedImage img = maze.getSolvedImage();
 
         dx = (width -img.getWidth())/2;
-        dy = (height-img.getHeight())/2;
+        dy = (height-img.getHeight())/4;
 
         canvas.getGraphics().drawImage(img, dx, dy, null);
     }
@@ -88,9 +88,9 @@ public class Window {
      * Overload of the draw method, if no scaleFactor is given, default is 1
      * @param maze
      */
-    public void draw(Maze maze){
-        this.draw(maze, 1);
-    }
+//    public void draw(Maze maze){
+//        this.draw(maze, 1);
+//    }
 
 
     /**
