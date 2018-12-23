@@ -1,31 +1,46 @@
 package maze.window;
 
+import maze.exceptions.ImageException;
+import maze.maze.Maze;
+
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import java.awt.Color;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
 public class Window {
     // Swing components
     private final java.awt.Canvas canvas;
     private final JFrame frame;
 
+    // Frame information
+    private final int width;
+    private final int height;
+
     // State information
 	private volatile boolean closeRequested;
 
     /**
-     * Creat a window with a JFrame and a Canvas
+     * Create a window with a JFrame and a Canvas
      * @param title (String): the title of the window that is getting created
      * @param width (int): the width of the window
      * @param height (int): the height of the window
      */
     public Window(String title, int width, int height){
+        // Setting attributes
+        this.width = width;
+        this.height = height;
+
         // Create Swing canvas
         canvas = new java.awt.Canvas();
         canvas.setFocusable(true);
 		canvas.setFocusTraversalKeysEnabled(false);
 		canvas.setIgnoreRepaint(true);
-		canvas.setBackground(Color.WHITE);
+		canvas.setBackground(Color.decode("#555555"));
 
         // Create Swing frame
         frame = new JFrame(title);
@@ -48,14 +63,35 @@ public class Window {
         frame.setVisible(true);
     }
 
+    // TODO: create a Text graphics entity to show when the solver is still solving and when it's done
+    // TODO: create an update method to check if space is pressed, to show the solution and update the text from solving to done
+
     /**
-     * Getter for the canvas, used in  maze.main.Main.java in order to add images to the
-     * window
-     * @return this.canvas (Canvas)
+     * Draw the maze in the window
+     * @param maze (Maze): the maze to be drawn
      */
-    public java.awt.Canvas getCanvas(){
-        return this.canvas;
+    public void draw(Maze maze, int scaleFactor){
+        int dx, dy;
+
+        maze.setScaleFactor(scaleFactor);
+
+//        BufferedImage img = maze.getImage();
+        BufferedImage img = maze.getSolvedImage();
+
+        dx = (width -img.getWidth())/2;
+        dy = (height-img.getHeight())/2;
+
+        canvas.getGraphics().drawImage(img, dx, dy, null);
     }
+
+    /**
+     * Overload of the draw method, if no scaleFactor is given, default is 1
+     * @param maze
+     */
+    public void draw(Maze maze){
+        this.draw(maze, 1);
+    }
+
 
     /**
      * Getter to know if the close request is true or false.

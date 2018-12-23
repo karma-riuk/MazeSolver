@@ -1,38 +1,52 @@
 package maze.main;
 
+import maze.exceptions.MazeException;
+import maze.maze.Maze;
 import maze.window.Window;
+import maze.solver.*;
 
-import javax.imageio.ImageIO;
-import java.io.File;
-import java.awt.image.BufferedImage;
-import java.awt.Graphics;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) {
-        int width, height;
-        width = 750;
-        height = 750;
+        /*---------------- Variable initialisation ----------------*/
+        // info on the window
+        int windowWidth = 500;
+        int windowHeight = 500;
 
+        // the size of the maze on the screen
+        int mazeSize = 300;
 
-        Window window = new Window("Main panel", width, height);
-        Graphics graphics = window.getCanvas().getGraphics();
+        // creating the window
+        Window window = new Window("Main panel", windowWidth, windowHeight);
 
-        BufferedImage img = null;
-        try{
-            img = ImageIO.read(new File("res/maze.png"));
-        }catch (Exception e){
-            System.out.println("ERROR: image not found");
-        }
+        // creating the maze
+        Maze maze = new Maze("perfect2k", true);
 
-        int dx, dy; 
-        dx = (int) width / 2-img.getWidth()/2;
-        dy = (int) height / 2-img.getHeight()/2;
+        // initializing the solver
+        Solver solver = new LeftTurn();
 
-        graphics.drawImage(img, dx, dy, null);
-        try{
-            
-            while(!window.isCloseRequested()){
+        /*------------------------- Code --------------------------*/
+        try {
+            System.out.println("Initializing maze...");
+            solver.initialiaze(maze);
+            System.out.println("Done initializing.");
+
+            System.out.println("Solving...");
+            solver.solve();
+            System.out.println("Done solving.");
+            System.out.println("Creating image of solution...");
+            maze.makeSolvedImage();
+            System.out.println("Done creating image.");
+
+            window.draw(maze, mazeSize/maze.getWidth());
+            while (!window.isCloseRequested()) {
+                TimeUnit.MILLISECONDS.sleep(10);
             }
+        }
+        catch (InterruptedException e){
         }
         finally{
             window.dispose();
