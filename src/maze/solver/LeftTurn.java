@@ -4,6 +4,9 @@ import maze.math.Coordinates;
 import maze.math.Node;
 import maze.math.Orientation;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +39,7 @@ public class LeftTurn extends Solver{
         Node lastNode;
         Orientation lastOrientation;
 
+        System.out.println(current);
         while (true){
             current.setHasBeenVisited(true);
             if (previousNodes.size() > 0) {
@@ -82,6 +86,14 @@ public class LeftTurn extends Solver{
         List<Coordinates> sol = new ArrayList<>();
         for (Node node : previousNodes) {
             sol.add(node.getPosition());
+        }
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("res/"+maze.getName() + "/" + this + ".log", true));
+//            bw.write("Nodes explored: "+queue);
+            bw.write("Solution length: "+sol.size()); bw.newLine();
+            bw.close();
+        }
+        catch (IOException e){
         }
         maze.addToSolution(sol);
         maze.makeFullSolution();
@@ -140,7 +152,7 @@ public class LeftTurn extends Solver{
         }
     }
 
-    private boolean culDeSac(Node node){
+     boolean culDeSac(Node node){
         for (Node child : node.getChildren()) {
             if (child != null && !child.hasBeenVisited()){
                return false;

@@ -4,6 +4,9 @@ import maze.math.Coordinates;
 import maze.math.Node;
 import maze.math.Orientation;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +49,15 @@ public class DepthFirst extends Solver{
         for (Node node : previousNodes) {
             sol.add(node.getPosition());
         }
+
+        try {
+            BufferedWriter bw = new BufferedWriter(new FileWriter("res/"+maze.getName() + "/" + this + ".log", true));
+//            bw.write("Nodes explored: "+queue);
+            bw.write("Solution length: "+sol.size()); bw.newLine();
+            bw.close();
+        }
+        catch (IOException e){
+        }
         System.out.println("Solution length: "+ sol.size());
         maze.addToSolution(sol);
         maze.makeFullSolution();
@@ -74,14 +86,14 @@ public class DepthFirst extends Solver{
         return false;
     }
 
-    private boolean culDeSac(Node node){
-        for (Node child : node.getChildren()) {
-            if (child != null && !child.hasBeenVisited()){
-                return false;
-            }
-        }
-        return true;
-    }
+//    private boolean culDeSac(Node node){
+//        for (Node child : node.getChildren()) {
+//            if (child != null && !child.hasBeenVisited()){
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     @Override
     public String toString() {

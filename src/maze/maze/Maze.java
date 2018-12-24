@@ -133,7 +133,7 @@ public class Maze {
 
         for (int y = 0; y < height; y++) {
             for (int x = 1; x < width-1; x++) {
-                boolean shouldAdd = true;
+//                boolean shouldAdd = true;
                 if ( maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
                         ((y == 0 || y == height-1) && maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == wall) // add the entrance/exit to the nodes
                                 || (maze[y][x-1].getCellType() == wall && maze[y][x+1].getCellType() == path) // start of a corridor (horizontal)
@@ -157,13 +157,13 @@ public class Maze {
 //                            shouldAdd = false;
 //                    }
 
-                    if(shouldAdd) {
+//                    if(shouldAdd) {
                         Node node = new Node(new Coordinates(x, y)); // creating the node
                         linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
                         linkNode(node, SearchOrientation.WEST); // searches for possible connection from west
                         maze[y][x].setNode(node);
                         nodes.add(node);
-                    }
+//                    }
                 }
             }
         }
@@ -179,6 +179,7 @@ public class Maze {
         System.out.println("Nodes count: "+nodes.size());
 //        System.out.println(this);
     }
+
 
     private void reduce(Node node){
         nodes.remove(node);
@@ -426,6 +427,10 @@ public class Maze {
 
     public void setScaleFactor(int scaleFactor) {
         this.scaleFactor = scaleFactor;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

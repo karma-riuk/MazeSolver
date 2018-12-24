@@ -1,8 +1,10 @@
 package maze.solver;
 
+import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import maze.math.Node;
 import maze.maze.Maze;
 
+import java.io.IOException;
 import java.util.List;
 
 public abstract class Solver {
@@ -30,5 +32,16 @@ public abstract class Solver {
         nodes = maze.getNodes();
         start = nodes.get(0);
         end = nodes.get(nodes.size()-1);
+    }
+
+    boolean culDeSac(Node node){
+        if (node == start || node == end)
+            return false;
+        for (Node child : node.getChildren()) {
+            if (child != null &&  !child.hasBeenVisited()){
+                return false;
+            }
+        }
+        return true;
     }
 }
