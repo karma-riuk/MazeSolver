@@ -13,10 +13,14 @@ import java.util.List;
 public class LeftTurn extends Solver{
     private List<Node> previousNodes;
     private List<Orientation> previousOrientation;
+    private int exploredNodes;
+    List<Coordinates> sol;
 
     public LeftTurn(){
         previousNodes = new ArrayList<>();
         previousOrientation = new ArrayList<>();
+        exploredNodes = 0;
+        sol = new ArrayList<>();
     }
 
     @Override
@@ -39,7 +43,6 @@ public class LeftTurn extends Solver{
         Node lastNode;
         Orientation lastOrientation;
 
-        System.out.println(current);
         while (true){
             current.setHasBeenVisited(true);
             if (previousNodes.size() > 0) {
@@ -53,6 +56,7 @@ public class LeftTurn extends Solver{
             leftNode = current.getChildren()[curOrientation.toNumber()];
 
             if (current == end){
+                exploredNodes++;
                 previousNodes.add(current);
                 break;
             }
@@ -78,27 +82,28 @@ public class LeftTurn extends Solver{
             }
             current = leftNode;
             curOrientation = leftOf(curOrientation);
+            exploredNodes++;
         }
 
         System.out.println("Nodes from start to end: "+previousNodes.size());
 
         // add the solution to the maze
-        List<Coordinates> sol = new ArrayList<>();
         for (Node node : previousNodes) {
             sol.add(node.getPosition());
         }
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("res/"+maze.getName() + "/" + this + ".log", true));
-//            bw.write("Nodes explored: "+queue);
-            bw.write("Solution length: "+sol.size()); bw.newLine();
-            bw.close();
-        }
-        catch (IOException e){
-        }
+
+        System.out.println("Solution length: "+ sol.size());
+        System.out.println("Nodes explored: "+exploredNodes);
         maze.addToSolution(sol);
         maze.makeFullSolution();
     }
 
+    public List<String> getIntel(){
+        List<String> ret = new ArrayList<>();
+        ret.add("Solution size: "+sol.size());
+        ret.add("Nodes explored: "+exploredNodes);
+        return ret;
+    }
 
     private  Orientation leftOf(Orientation o){
         for (Orientation orientation : Orientation.values()) {

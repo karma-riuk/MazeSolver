@@ -44,4 +44,6 @@ public abstract class Solver {
         }
         return true;
     }
+
+    public abstract List<String> getIntel();
 }

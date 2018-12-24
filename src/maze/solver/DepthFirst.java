@@ -13,10 +13,14 @@ import java.util.List;
 public class DepthFirst extends Solver{
     private List<Node> previousNodes;
     private List<Orientation> previousOrientation;
+    private int exploredNodes;
+    private List<Coordinates> sol;
 
     public DepthFirst(){
         this.previousNodes = new ArrayList<>();
         this.previousOrientation = new ArrayList<>();
+        this.exploredNodes = 0;
+        this.sol = new ArrayList<>();
     }
 
 
@@ -35,29 +39,24 @@ public class DepthFirst extends Solver{
                     if (child == end){
                         previousNodes.add(curent);
                         previousNodes.add(child);
+                        exploredNodes++;
+                        exploredNodes++;
                         curent = end;
                         break;
                     }
                     previousNodes.add(curent);
+                    exploredNodes++;
                     curent = child;
                     break;
                 }
             }
         }
 
-        List<Coordinates> sol = new ArrayList<>();
         for (Node node : previousNodes) {
             sol.add(node.getPosition());
         }
 
-        try {
-            BufferedWriter bw = new BufferedWriter(new FileWriter("res/"+maze.getName() + "/" + this + ".log", true));
-//            bw.write("Nodes explored: "+queue);
-            bw.write("Solution length: "+sol.size()); bw.newLine();
-            bw.close();
-        }
-        catch (IOException e){
-        }
+        System.out.println("Nodes explored: "+exploredNodes);
         System.out.println("Solution length: "+ sol.size());
         maze.addToSolution(sol);
         maze.makeFullSolution();
@@ -86,14 +85,12 @@ public class DepthFirst extends Solver{
         return false;
     }
 
-//    private boolean culDeSac(Node node){
-//        for (Node child : node.getChildren()) {
-//            if (child != null && !child.hasBeenVisited()){
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
+    public List<String> getIntel(){
+        List<String> ret = new ArrayList<>();
+        ret.add("Solution size: "+sol.size());
+        ret.add("Nodes explored: "+exploredNodes);
+        return ret;
+    }
 
     @Override
     public String toString() {

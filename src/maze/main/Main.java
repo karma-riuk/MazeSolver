@@ -9,6 +9,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +26,7 @@ public class Main {
         long absStartTime = System.nanoTime();
 
         // The maze we are solving
-        String mazeName = "combo6k";
+        String mazeName = "perfect2k";
 
         // the size of the maze on the screen
 //        float mazeScaleFactor = .1f;
@@ -37,10 +38,13 @@ public class Main {
         Maze maze = new Maze(mazeName, reduce);
 
         // initializing the solver
-        Solver solver = new LeftTurn();
+        Solver solver = new BreadthFirst();
 
         // creating the window
         Window window = new Window(mazeName+" with "+solver+" (reduce: "+reduce+")", maze.getNewW()+25, maze.getNewH()+50);
+
+        // List of information to write in the file
+        List<String> intel = new ArrayList<>();
 
         // Variables to know how much time the program took to run
         long startTime;
@@ -49,11 +53,6 @@ public class Main {
         /*------------------------- Code --------------------------*/
         try {
             System.out.println(maze.getWidth());
-            String fileName = "res/"+mazeName+"/"+solver+".log";
-            File file = new File(fileName);
-            file.delete();
-            file.createNewFile();
-            BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, true));
 
             // Initializing
             System.out.println("Initializing maze...");
@@ -63,8 +62,9 @@ public class Main {
 
             endTime = System.nanoTime();
             System.out.println("Time taken to initialize the maze: "+((endTime-startTime)/1000000000));
-            bw.write("Node count: "+maze.getNodes().size()); bw.newLine();
-            bw.write("Time taken to initialize the maze: "+((endTime-startTime)/1000000000)+" seconds"); bw.newLine();
+            intel.add("Node count: "+maze.getNodes().size());
+            intel.add("");
+            intel.add("Time taken to initialize the maze: "+((endTime-startTime)/1000000000)+" seconds");
 
             // Solving
             System.out.println("Solving...");
@@ -74,7 +74,7 @@ public class Main {
 
             endTime = System.nanoTime();
             System.out.println("Time taken to solve the maze: "+((endTime-startTime)/1000000000));
-            bw.write("Time taken to solve the maze: "+((endTime-startTime)/1000000000)+" seconds"); bw.newLine();
+            intel.add("Time taken to solve the maze: "+((endTime-startTime)/1000000000)+" seconds");
 
             // Creating image of solution
             System.out.println("Creating image of solution...");
@@ -84,7 +84,7 @@ public class Main {
 
             endTime = System.nanoTime();
             System.out.println("Time taken to create the image of the solution: "+((endTime-startTime)/1000000000));
-            bw.write("Time taken to create the image of the solution: "+((endTime-startTime)/1000000000)+" seconds"); bw.newLine();
+            intel.add("Time taken to create the image of the solution: "+((endTime-startTime)/1000000000)+" seconds");
 
             File sol = new File("res/"+mazeName+"-solved.png");
             File renamedSol = new File("res/"+mazeName+"/"+solver+".png");
@@ -93,8 +93,21 @@ public class Main {
 
             long absEndTime = System.nanoTime();
             System.out.println("\nTime taken to do every thing: "+ ((absEndTime-absStartTime)/1000000000));
-            bw.write("Total time elapsed: "+((absEndTime-absStartTime)/1000000000)); bw.newLine();
+            intel.add("Total time elapsed: "+((absEndTime-absStartTime)/1000000000));
+
+            intel.add("");
+            intel.addAll(solver.getIntel());
+            String fileName = "res/"+mazeName+"/"+solver+".log";
+            File file = new File(fileName);
+            file.delete();
+            file.createNewFile();
+            BufferedWriter bw = new BufferedWriter(new FileWriter(fileName, true));
+            for (String s : intel) {
+                bw.write(s);bw.newLine();
+            }
             bw.close();
+
+
 
             while (!window.isCloseRequested()) {
                 window.draw(maze);
