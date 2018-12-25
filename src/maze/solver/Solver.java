@@ -1,6 +1,5 @@
 package maze.solver;
 
-import com.sun.xml.internal.ws.policy.privateutil.PolicyUtils;
 import maze.math.Node;
 import maze.maze.Maze;
 
