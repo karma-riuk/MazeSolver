@@ -11,9 +11,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.List;
 
 public class Maze {
@@ -124,51 +125,69 @@ public class Maze {
      */
     public void transform() throws MazeException {
         long startTime = System.nanoTime();
+        long endTime;
         // check if maze satisfies our criteria
         if (!checkMaze())
             throw new MazeException();
 
-        Cell.CellType wall = Cell.CellType.WALL;
-        Cell.CellType path = Cell.CellType.PATH;
-
-        for (int y = 0; y < height; y++) {
-            for (int x = 1; x < width-1; x++) {
+        File file = new File("res/"+name+"/nodes");
+        if (!file.exists()) { // if the binary file containg the nodes doesn't exist, then create the nodes
+            Cell.CellType wall = Cell.CellType.WALL;
+            Cell.CellType path = Cell.CellType.PATH;
+            for (int y = 0; y < height; y++) {
+                for (int x = 1; x < width - 1; x++) {
 //                boolean shouldAdd = true;
-                if ( maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
-                        ((y == 0 || y == height-1) && maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == wall) // add the entrance/exit to the nodes
-                                || (maze[y][x-1].getCellType() == wall && maze[y][x+1].getCellType() == path) // start of a corridor (horizontal)
-                                || (maze[y-1][x].getCellType() == wall && maze[y+1][x].getCellType() == path) // start of a corridor (vertical)
-                                || (maze[y][x+1].getCellType() == wall && maze[y][x-1].getCellType() == path) // end of a corridor (horizontal)
-                                || (maze[y+1][x].getCellType() == wall && maze[y-1][x].getCellType() == path) // end of a corridor (vertical)
-                                || (maze[y-1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
-                                || (maze[y+1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
-                )) {
-//                    if (reduce && (y != 0 && y != height-1)){ // reduce only if the node is not on the top or bottom row (don't reduce start and exit)
-//                        int wallCount = 0;
-//                        for (int y1 = -1; y1 < 2; y1+=2) {
-//                            if (maze[y+y1][x].getCellType() == wall)
-//                                wallCount ++;
-//                        }
-//                        for (int x1 = -1; x1 < 2; x1+=2) {
-//                            if (maze[y][x+x1].getCellType() == wall)
-//                                wallCount ++;
-//                        }
-//                        if (wallCount >= 3)
-//                            shouldAdd = false;
-//                    }
-
-//                    if(shouldAdd) {
+                    if (maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
+                            ((y == 0 || y == height - 1) && maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == wall) // add the entrance/exit to the nodes
+                                    || (maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == path) // start of a corridor (horizontal)
+                                    || (maze[y - 1][x].getCellType() == wall && maze[y + 1][x].getCellType() == path) // start of a corridor (vertical)
+                                    || (maze[y][x + 1].getCellType() == wall && maze[y][x - 1].getCellType() == path) // end of a corridor (horizontal)
+                                    || (maze[y + 1][x].getCellType() == wall && maze[y - 1][x].getCellType() == path) // end of a corridor (vertical)
+                                    || (maze[y - 1][x].getCellType() == path && (maze[y][x + 1].getCellType() == path || maze[y][x - 1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
+                                    || (maze[y + 1][x].getCellType() == path && (maze[y][x + 1].getCellType() == path || maze[y][x - 1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
+                    )) {
                         Node node = new Node(new Coordinates(x, y)); // creating the node
-                        linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
-                        linkNode(node, SearchOrientation.WEST); // searches for possible connection from west
-                        maze[y][x].setNode(node);
                         nodes.add(node);
-//                    }
+                        maze[y][x].setNode(node);
+                    }
                 }
             }
+            endTime = System.nanoTime();
+            System.out.println("Time taken to create the nodes: "+ ((endTime - startTime)/1000000000));
+
+            System.out.println("Writing nodes to binary file...");
+            startTime = System.nanoTime();
+//            List<Node> tryNodes = new LinkedList<>();
+//            tryNodes.add(new Node(new Coordinates(2051, 2049)));
+//            tryNodes.add(new Node(new Coordinates(3, 4)));
+//            tryNodes.add(new Node(new Coordinates(5, 6)));
+//            tryNodes.add(new Node(new Coordinates(7, 8)));
+            writeBinaryFile(nodes);
+//            List<Node> testNodes = parseNodes(readBinaryFile());
+//            System.out.println("\n\nTEST NODES: "+testNodes+"\n\n");
+            endTime = System.nanoTime();
+            System.out.println("Time taken to writes the nodes in file: "+(endTime - startTime)/1000000000);
         }
-        long endTime = System.nanoTime();
-        System.out.println("Time taken to create the nodes: "+ ((endTime - startTime)/1000000000));
+        else{
+            nodes.addAll(parseNodes(readBinaryFile()));
+            for (Node node : nodes) {
+                maze[node.getPosition().getY()][node.getPosition().getX()].setNode(node);
+            }
+            endTime = System.nanoTime();
+            System.out.println("Time taken to read the nodes from binary file and create them: "+ ((endTime - startTime)/1000000000));
+        }
+
+        System.out.println("Linking nodes together...");
+        startTime = System.nanoTime();
+        for (Node node : nodes) {
+            linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
+            linkNode(node, SearchOrientation.WEST); // searches for possible connection from west
+        }
+//        System.out.println(nodes);
+        endTime = System.nanoTime();
+        System.out.println("Time taken to link nodes together: "+ ((endTime - startTime)/1000000000));
+
+
         if (reduce) {
             System.out.println("Reducing...");
             startTime = System.nanoTime();
@@ -178,8 +197,63 @@ public class Maze {
         }
         System.out.println("Nodes count: "+nodes.size());
 //        System.out.println(this);
+
     }
 
+    private int extractInt(byte b1, byte b2){
+        return (((b1 & 0xFF) << 8) | (b2 & 0xFF));
+    }
+
+    private List<Node> parseNodes(byte[] data){
+        int len = (( ((data[0] & 0xFF) << 24 ) | ((data[1] & 0xFF) << 16 ) | (data[2] & 0xFF) << 8) | (data[3] & 0xFF));
+        Node[] tmpNodes = new Node[len];
+
+        int z = 4;
+        for (int i = 0; i < tmpNodes.length; i++) {
+            tmpNodes[i] = new Node(new Coordinates(extractInt(data[z], data[z+1]), extractInt(data[z+2], data[z+3])));
+            z+=4;
+        }
+        return Arrays.asList(tmpNodes);
+    }
+
+    private void writeBinaryFile(List<Node> nodes){
+        byte[] byteNodes = new byte[4+nodes.size()*4]; // the size of the byte array is 3 (the size of the array) + 2 (the number of coordinates in a node) * 2 (the bytes that will occupy the coordinate)
+        for (int i = 0; i < 4; i++)
+            byteNodes[i] = (byte) ((nodes.size()>> (3-i)*8) & 0xFF);
+
+        int i = 4;
+
+        for (Node node : nodes) {
+            for (int j = 0; j < 2; j++) {
+                byteNodes[i] = (byte) ((node.getPosition().getX() >> (1-j)*8) & 0xFF);
+                i++;
+            }
+            for (int j = 0; j < 2; j++) {
+                byteNodes[i] = (byte) ((node.getPosition().getY() >> (1-j)*8) & 0xFF);
+                i++;
+            }
+        }
+
+        Path path = Paths.get("res/"+name+"/nodes");
+        try{
+            Files.write(path, byteNodes);
+        }catch (IOException io) {
+            System.out.println("Could not write to file");
+            System.out.println(io.getMessage());
+        }
+    }
+
+    private byte[] readBinaryFile(){
+        Path path = Paths.get("res/"+name+"/nodes");
+        byte[] data = null;
+        try{
+            data = Files.readAllBytes(path);
+        }catch (IOException io) {
+            System.out.println("Could not open file");
+            System.out.println(io.getMessage());
+        }
+        return data;
+    }
 
     private void reduce(Node node){
         nodes.remove(node);
@@ -200,6 +274,7 @@ public class Maze {
             reduce(onlyChild);
         }
     }
+
     private void reduce(){
         int nChilds;
         List<Node> nodesToRemove = new ArrayList<>();
@@ -230,6 +305,7 @@ public class Maze {
     }
 
     /**
+     * !!! OLD !!!
      * Method to check if a node should accept a link or not, is used in linkNodes(Node node)
      * @param y (int): the column we are looking at in the maze
      * @param x (int): the row we are looking at in the maze
@@ -253,6 +329,10 @@ public class Maze {
         return ret;
     }
 
+    private boolean conditions(int y, int x){
+        return (maze[y][x].getCellType() != Cell.CellType.WALL);
+    }
+
     /**
      * Passes through all the previous cells (above the current cell or to the left of it), checks if there is a node in
      * one of these cells and checks if there is a wall between them, if there is a node and there is no wall, connect them
@@ -261,9 +341,9 @@ public class Maze {
      * @param orientation (SearchOrientation): variable to know where we are looking (north or west)
      */
     private void linkNode(Node node, SearchOrientation orientation){
-        boolean isBlocked = false;
         Node possibleNode = null;
         int maxCount, other;
+
         if (orientation == SearchOrientation.NORTH) {
             maxCount = node.getPosition().getY();
             other = node.getPosition().getX();
@@ -271,16 +351,27 @@ public class Maze {
             maxCount = node.getPosition().getX();
             other = node.getPosition().getY();
         }
-        Object[] result;
-        for (int i = 0; i < maxCount; i++){
-            if (orientation == SearchOrientation.NORTH)
-                result = conditions(i, other, possibleNode, isBlocked);
-            else
-                result = conditions(other, i, possibleNode, isBlocked);
-            possibleNode = (Node) result[0];
-            isBlocked = (boolean) result[1];
+
+        for (int i = maxCount-1; i >= 0; i--){ // look behind the node (left side or up respectively)
+            if (orientation == SearchOrientation.NORTH) {
+                if (maze[i][other].getCellType() == Cell.CellType.WALL) // if there is a wall and we still haven't found anything, just give up
+                    break;
+                else if (maze[i][other].getNode() != null) {
+                    possibleNode = maze[i][other].getNode();
+                    break;
+                }
+
+            }
+            else {
+                if (maze[other][i].getCellType() == Cell.CellType.WALL) // if there is a wall and we still haven't found anything, just give up
+                    break;
+                else if (maze[other][i].getNode() != null){
+                    possibleNode = maze[other][i].getNode();
+                    break;
+                }
+            }
         }
-        if (!isBlocked && possibleNode != null) {
+        if (possibleNode != null)
             if (orientation == SearchOrientation.NORTH) {
                 node.setConnectionNorth(possibleNode);
                 possibleNode.setConnectionSouth(node);
@@ -288,7 +379,24 @@ public class Maze {
                 node.setConnectionWest(possibleNode);
                 possibleNode.setConnectionEast(node);
             }
-        }
+
+//        for (int i = 0; i < maxCount; i++){
+//            if (orientation == SearchOrientation.NORTH)
+//                result = conditions(i, other, possibleNode, isBlocked);
+//            else
+//                result = conditions(other, i, possibleNode, isBlocked);
+//            possibleNode = (Node) result[0];
+//            isBlocked = (boolean) result[1];
+//        }
+//        if (!isBlocked && possibleNode != null) {
+//            if (orientation == SearchOrientation.NORTH) {
+//                node.setConnectionNorth(possibleNode);
+//                possibleNode.setConnectionSouth(node);
+//            } else {
+//                node.setConnectionWest(possibleNode);
+//                possibleNode.setConnectionEast(node);
+//            }
+//        }
 
 
     }
