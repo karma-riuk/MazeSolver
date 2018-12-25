@@ -1,6 +1,5 @@
 package maze.solver;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import maze.math.Coordinates;
 import maze.math.Node;
 
