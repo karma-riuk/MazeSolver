@@ -24,8 +24,12 @@ public class Maze {
     private int width;
     // height
     private int height;
+    // width of output
+    private int newW;
+    // height of output
+    private int newH;
     // scale factor
-    private int scaleFactor = 1;
+    private float scaleFactor = 1;
     // reduce boolean, to get rid of useless nodes (memory optimization)
     private boolean reduce = false;
     /// images
@@ -39,6 +43,17 @@ public class Maze {
     private List<Cell> solution;
     // nodes
     private List<Node> nodes;
+
+    public Maze(String name, boolean reduce, float scaleFactor){
+        this(name);
+        this.reduce = reduce;
+        this.scaleFactor = scaleFactor;
+    }
+
+    public Maze(String name, float scaleFactor){
+        this(name);
+        this.scaleFactor = scaleFactor;
+    }
 
     public Maze(String name, boolean reduce){
         this(name);
@@ -60,8 +75,13 @@ public class Maze {
         width = image.getWidth();
         height = image.getHeight();
 
+        scaleFactor = (float)(1000/width);
+
+        newH = 1000;
+        newW = (newH*width)/height;
+
         // create a cell version of the image, to be easier to manipulate
-        maze = new Cell[width][height];
+        maze = new Cell[height][width];
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
                 if (image.getRGB(x, y) == Color.BLACK.getRGB())
@@ -80,14 +100,16 @@ public class Maze {
     private boolean checkMaze(){
         int entryCount, exitCount, leftPathCount, rightPathCount;
         entryCount = exitCount = leftPathCount = rightPathCount = 0;
-        for (int i = 0; i < maze.length; i++) {
+        for (int i = 0; i < width; i++) {
             if (maze[0][i].getCellType() == Cell.CellType.PATH)
                 entryCount++;
-            if (maze[maze.length-1][i].getCellType() == Cell.CellType.PATH)
+            if (maze[height - 1][i].getCellType() == Cell.CellType.PATH)
                 exitCount++;
+        }
+        for (int i = 0; i < height; i++) {
             if (maze[i][0].getCellType() == Cell.CellType.PATH)
                 leftPathCount++;
-            if (maze[i][maze[i].length-1].getCellType() == Cell.CellType.PATH)
+            if (maze[i][width-1].getCellType() == Cell.CellType.PATH)
                 rightPathCount++;
         }
         return (entryCount == 1 && exitCount == 1 && leftPathCount == 0 && rightPathCount == 0);
@@ -101,6 +123,7 @@ public class Maze {
      * they get linked.
      */
     public void transform() throws MazeException {
+        long startTime = System.nanoTime();
         // check if maze satisfies our criteria
         if (!checkMaze())
             throw new MazeException();
@@ -110,7 +133,7 @@ public class Maze {
 
         for (int y = 0; y < height; y++) {
             for (int x = 1; x < width-1; x++) {
-                boolean shouldAdd = true;
+//                boolean shouldAdd = true;
                 if ( maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
                         ((y == 0 || y == height-1) && maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == wall) // add the entrance/exit to the nodes
                                 || (maze[y][x-1].getCellType() == wall && maze[y][x+1].getCellType() == path) // start of a corridor (horizontal)
@@ -120,35 +143,43 @@ public class Maze {
                                 || (maze[y-1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
                                 || (maze[y+1][x].getCellType() == path && (maze[y][x+1].getCellType() == path || maze[y][x-1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
                 )) {
-                    if (reduce && (y != 0 && y != height-1)){ // reduce only if the node is not on the top or bottom row (don't reduce start and exit)
-                        int wallCount = 0;
-                        for (int y1 = -1; y1 < 2; y1+=2) {
-                            if (maze[y+y1][x].getCellType() == wall)
-                                wallCount ++;
-                        }
-                        for (int x1 = -1; x1 < 2; x1+=2) {
-                            if (maze[y][x+x1].getCellType() == wall)
-                                wallCount ++;
-                        }
-                        if (wallCount >= 3)
-                            shouldAdd = false;
-                    }
+//                    if (reduce && (y != 0 && y != height-1)){ // reduce only if the node is not on the top or bottom row (don't reduce start and exit)
+//                        int wallCount = 0;
+//                        for (int y1 = -1; y1 < 2; y1+=2) {
+//                            if (maze[y+y1][x].getCellType() == wall)
+//                                wallCount ++;
+//                        }
+//                        for (int x1 = -1; x1 < 2; x1+=2) {
+//                            if (maze[y][x+x1].getCellType() == wall)
+//                                wallCount ++;
+//                        }
+//                        if (wallCount >= 3)
+//                            shouldAdd = false;
+//                    }
 
-                    if(shouldAdd) {
+//                    if(shouldAdd) {
                         Node node = new Node(new Coordinates(x, y)); // creating the node
                         linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
                         linkNode(node, SearchOrientation.WEST); // searches for possible connection from west
                         maze[y][x].setNode(node);
                         nodes.add(node);
-                    }
+//                    }
                 }
             }
         }
-        System.out.println("Reducing...");
-        reduce();
-        System.out.println("Done reducing.");
+        long endTime = System.nanoTime();
+        System.out.println("Time taken to create the nodes: "+ ((endTime - startTime)/1000000000));
+        if (reduce) {
+            System.out.println("Reducing...");
+            startTime = System.nanoTime();
+            reduce();
+            endTime = System.nanoTime();
+            System.out.println("Time taken to reduce them: "+ ((endTime - startTime)/1000000000));
+        }
+        System.out.println("Nodes count: "+nodes.size());
 //        System.out.println(this);
     }
+
 
     private void reduce(Node node){
         nodes.remove(node);
@@ -295,6 +326,14 @@ public class Maze {
             red = (int) (255*((double) solution.indexOf(cell)/solutionSize));
             blue = (int) (255*((double) (solutionSize-solution.indexOf(cell))/solutionSize));
         }
+
+        try {
+            File outPutFile = new File("res/"+name + "-solved.png");
+            ImageIO.write(imageSolved, "png", outPutFile);
+        }catch (IOException e){
+            System.out.println("Couldn't write solution file");
+        }
+
     }
 
     public void makeFullSolution(){
@@ -354,6 +393,14 @@ public class Maze {
         return height;
     }
 
+    public int getNewH() {
+        return newH;
+    }
+
+    public int getNewW() {
+        return newW;
+    }
+
     public BufferedImage getImage(){
         return getImage(image);
     }
@@ -363,8 +410,8 @@ public class Maze {
      * @return image (BufferedImage)
      */
     private BufferedImage getImage(BufferedImage image){
-        int newW = width*scaleFactor;
-        int newH = height*scaleFactor;
+//        int newW = (int)(width*scaleFactor);
+//        int newH = (int)(height*scaleFactor);
         Image tmp = image.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
         BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = resized.createGraphics();
@@ -380,6 +427,10 @@ public class Maze {
 
     public void setScaleFactor(int scaleFactor) {
         this.scaleFactor = scaleFactor;
+    }
+
+    public String getName() {
+        return name;
     }
 
     @Override

@@ -19,6 +19,10 @@ public class Node {
         this.position = coordinates;
 
         children = new Node[4];
+//        children[0] = connectionNorth;
+//        children[1] = connectionEast;
+//        children[2] = connectionSouth;
+//        children[3] = connectionWest;
         children[0] = connectionNorth;
         children[1] = connectionWest;
         children[2] = connectionSouth;
