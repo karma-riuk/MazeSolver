@@ -1,6 +1,9 @@
-Solution length: 1433
 Node count: 641504
-Time taken to initialize the maze: 18 seconds
+
+Time taken to initialize the maze: 1 seconds
 Time taken to solve the maze: 37 seconds
 Time taken to create the image of the solution: 4 seconds
-Total time elapsed: 61
+Total time elapsed: 44
+
+Solution size: 1433
+Nodes explored: 527000

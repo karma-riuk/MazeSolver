@@ -21,12 +21,12 @@ public class Main {
 
         /*---------------- Variable initialisation ----------------*/
         // info on the window
-//        int windowWidth = 900;
+//        int windowWidth = ,00;
 //        int windowHeight = 900;
         long absStartTime = System.nanoTime();
 
         // The maze we are solving
-        String mazeName = "perfect2k";
+        String mazeName = "perfect10k";
 
         // the size of the maze on the screen
 //        float mazeScaleFactor = .1f;
@@ -38,7 +38,7 @@ public class Main {
         Maze maze = new Maze(mazeName, reduce);
 
         // initializing the solver
-        Solver solver = new BreadthFirst();
+        Solver solver = new DepthFirst();
 
         // creating the window
         Window window = new Window(mazeName+" with "+solver+" (reduce: "+reduce+")", maze.getNewW()+25, maze.getNewH()+50);
@@ -52,8 +52,6 @@ public class Main {
 
         /*------------------------- Code --------------------------*/
         try {
-            System.out.println(maze.getWidth());
-
             // Initializing
             System.out.println("Initializing maze...");
             startTime = System.nanoTime();

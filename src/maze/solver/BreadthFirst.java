@@ -14,7 +14,7 @@ import java.util.List;
 public class BreadthFirst extends Solver{
     private List<Node> queue;
     private List<Node> previousNodes;
-    List<Coordinates> sol;
+    private List<Coordinates> sol;
 
     public BreadthFirst(){
         this.queue = new ArrayList<>();
@@ -56,7 +56,7 @@ public class BreadthFirst extends Solver{
         }
 
         System.out.println("All registered nodes before find the end: "+queue.size());
-        System.out.println("Nodes explored: "+queue.subList(0, queue.indexOf(end)).size());
+        System.out.println("Nodes explored: "+queue.indexOf(end));
         System.out.println("Solution length: "+sol.size());
         maze.addToSolution(sol);
         maze.makeFullSolution();
@@ -65,7 +65,7 @@ public class BreadthFirst extends Solver{
     public List<String> getIntel(){
         List<String> ret = new ArrayList<>();
         ret.add("Solution size: "+sol.size());
-        ret.add("Nodes explored: "+queue.subList(0, queue.indexOf(end)).size());
+        ret.add("Nodes explored: "+queue.indexOf(end));
         return ret;
     }
 
