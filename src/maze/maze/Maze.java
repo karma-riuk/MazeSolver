@@ -4,6 +4,7 @@ import maze.exceptions.ImageException;
 import maze.exceptions.MazeException;
 import maze.math.Coordinates;
 import maze.math.Node;
+import maze.math.SampleNode;
 import maze.solver.*;
 
 import javax.imageio.ImageIO;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.NumberFormat;
 import java.util.*;
 import java.util.List;
 
@@ -46,6 +48,8 @@ public class Maze {
     private List<Coordinates> solution;
     // nodes
     private List<Node> nodes;
+    // average number of nodes per line
+    private float avrNodes = 0.4f;
 
     public Maze(String name, boolean reduce, float scaleFactor){
         this(name);
@@ -143,7 +147,7 @@ public class Maze {
         if (!checkMaze())
             throw new MazeException();
 
-        File file = new File("res/"+name+"/nodes");
+        File file = new File("res/"+name+"/node");
         if (!file.exists()) { // if the binary file containg the nodes doesn't exist, then create the nodes
 //            Cell.CellType wall = Cell.CellType.WALL;
             int wall = Cell.CellType.WALL.getInt();
@@ -178,7 +182,7 @@ public class Maze {
 //            tryNodes.add(new Node(new Coordinates(3, 4)));
 //            tryNodes.add(new Node(new Coordinates(5, 6)));
 //            tryNodes.add(new Node(new Coordinates(7, 8)));
-            writeBinaryFile(nodes);
+//            writeBinaryFile(nodes);
 //            List<Node> testNodes = parseNodes(readBinaryFile());
 //            System.out.println("\n\nTEST NODES: "+testNodes+"\n\n");
             endTime = System.nanoTime();
@@ -193,11 +197,38 @@ public class Maze {
             System.out.println("Time taken to read the nodes from binary file and create them: "+ ((endTime - startTime)/1000000000));
         }
 
+        System.out.println(nodes.size());
         System.out.println("Linking nodes together...");
+
+//        startTime = System.nanoTime();
+
+        int[] amounts = new int[height];
+        int last = 0;
+        for (Node node: nodes){
+            if (node.getPosition().getY() == last)
+                amounts[last] ++;
+            else
+                last ++;
+        }
+        float average = 0f;
+        for (int b: amounts){
+            average+=b;
+        }
+        average/=height;
+        System.out.println("average: "+average);
+        average =(average/width);
+        System.out.println("Rapport en moyenne et largeur: "+average);
+//        endTime = System.nanoTime();
+//        System.out.println("time to verify condition: "+NumberFormat.getNumberInstance(Locale.FRANCE).format(endTime-startTime));
+
         startTime = System.nanoTime();
         for (Node node : nodes) {
+//            startTime = System.nanoTime();
             linkNode(node, SearchOrientation.NORTH); // searches for possible connection from north
+//            endTime = System.nanoTime();
+//            if ()
             linkNode(node, SearchOrientation.WEST); // searches for possible connection from west
+//            System.out.println("Time taken : "+ ((endTime - startTime)));
         }
 //        System.out.println(nodes);
         endTime = System.nanoTime();
@@ -329,25 +360,25 @@ public class Maze {
      * @param isBlocked (boolean): boolean to know if there is a wall between 2 nodes
      * @return (Object[2]): contains the future value that has to be assigned to possibleNode and isBlocked in linkNodes(Node node)
      */
-//    private Object[] conditions(int y, int x, Node possibleNode, boolean isBlocked) {
-//        Object[] ret = new Object[2];
-//        Node possibleNode1 = possibleNode;
-//        boolean isBlocked1 = isBlocked;
-//        if (maze[y][x].getNode() != null) {
-//            possibleNode1 = maze[y][x].getNode();
-//            isBlocked1 = false;
-//        } else if (possibleNode != null && maze[y][x].getCellType() == Cell.CellType.WALL){
-//            possibleNode1 = null;
-//            isBlocked1 = true;
-//        }
-//        ret[0] = possibleNode1;
-//        ret[1] = isBlocked1;
-//        return ret;
-//    }
+    /*private Object[] conditions(int y, int x, Node possibleNode, boolean isBlocked) {
+        Object[] ret = new Object[2];
+        Node possibleNode1 = possibleNode;
+        boolean isBlocked1 = isBlocked;
+        if (maze[y][x].getNode() != null) {
+            possibleNode1 = maze[y][x].getNode();
+            isBlocked1 = false;
+        } else if (possibleNode != null && maze[y][x].getCellType() == Cell.CellType.WALL){
+            possibleNode1 = null;
+            isBlocked1 = true;
+        }
+        ret[0] = possibleNode1;
+        ret[1] = isBlocked1;
+        return ret;
+    }
 
-//    private boolean conditions(int y, int x){
-//        return (maze[y][x].getCellType() != Cell.CellType.WALL);
-//    }
+    private boolean conditions(int y, int x){
+        return (maze[y][x].getCellType() != Cell.CellType.WALL);
+    }*/
 
     /**
      * Passes through all the previous cells (above the current cell or to the left of it), checks if there is a node in
@@ -356,9 +387,10 @@ public class Maze {
      * @param node (Node): the node we are currently looking at
      * @param orientation (SearchOrientation): variable to know where we are looking (north or west)
      */
-    private void linkNode(Node node, SearchOrientation orientation){
+    private SampleNode sample = new SampleNode(new Coordinates(0, 0));
+    private void linkNode(Node node, SearchOrientation orientation) {
         Node possibleNode = null;
-        int maxCount, other;
+        int maxCount, other, min;
 
         if (orientation == SearchOrientation.NORTH) {
             maxCount = node.getPosition().getY();
@@ -367,13 +399,24 @@ public class Maze {
             maxCount = node.getPosition().getX();
             other = node.getPosition().getY();
         }
+        if (maxCount > 10)
+            min = maxCount-5;
+        else
+            min = 0;
 
+
+//        long start = System.nanoTime();
         for (int i = maxCount-1; i >= 0; i--){ // look behind the node (left side or up respectively)
+//            for (int i = maxCount-1; i >= min; i--){ // look behind the node (left side or up respectively)
             if (orientation == SearchOrientation.NORTH) {
                 if (image.getRGB(other, i) == Cell.CellType.WALL.getInt()) // if there is a wall and we still haven't found anything, just give up
                     break;
                 else if (maze[i][other]) {
-                    possibleNode = nodes.get(nodes.indexOf(new Node(new Coordinates(other , i))));
+                    long start = System.nanoTime();
+                    sample.setNewCoordinates(new Coordinates(other , i));
+                    possibleNode = nodes.get(nodes.indexOf(sample));
+                    long end = System.nanoTime();
+//                    System.out.println("time taken to set new coord and get the sample:"+ NumberFormat.getNumberInstance(Locale.FRANCE).format(end - start));
                     break;
                 }
             }
@@ -381,11 +424,18 @@ public class Maze {
                 if (image.getRGB(i, other) == Cell.CellType.WALL.getInt()) // if there is a wall and we still haven't found anything, just give up
                     break;
                 else if (maze[other][i]){
-                    possibleNode = nodes.get(nodes.indexOf(new Node(new Coordinates(i , other))));
+                    sample.setNewCoordinates(new Coordinates(i , other));
+                    possibleNode = nodes.get(nodes.indexOf(sample));
                     break;
                 }
             }
         }
+
+//        long end = System.nanoTime();
+//        System.out.println("Time taken to go through the loop: "+((end - start)));
+//        if ((end - start) > 100000)
+//            System.out.println(maxCount);
+
         if (possibleNode != null)
             if (orientation == SearchOrientation.NORTH) {
                 node.setConnectionNorth(possibleNode);

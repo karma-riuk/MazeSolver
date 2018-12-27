@@ -29,6 +29,7 @@ public class DepthFirst extends Solver{
         Node curent = start;
 
         while (curent != end) {
+//            System.out.println(curent);
             curent.setHasBeenVisited(true);
             if (curent != start && curent != end && culDeSac(curent)) {
                 previousNodes.remove(curent);

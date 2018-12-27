@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Node {
     // position
-    private Coordinates position;
+    protected Coordinates position;
     // Boolean to know if this cell has been visited or not
     private boolean hasBeenVisited = false;
     // other connections
@@ -14,6 +14,8 @@ public class Node {
     private Node connectionEast = null;
     private Node connectionWest = null;
     private Node[] children;
+    // static example of child
+//    public static SampleNode sample = new SampleNode(new Coordinates(0, 0));
 
     public Node(Coordinates coordinates){
         this.position = coordinates;

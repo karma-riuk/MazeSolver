@@ -26,7 +26,7 @@ public class Main {
         long absStartTime = System.nanoTime();
 
         // The maze we are solving
-        String mazeName = "combo400";
+        String mazeName = "perfect10k";
 
         // the size of the maze on the screen
 //        float mazeScaleFactor = .1f;
@@ -38,7 +38,7 @@ public class Main {
         Maze maze = new Maze(mazeName, reduce);
 
         // initializing the solver
-        Solver solver = new BreadthFirst();
+        Solver solver = new DepthFirst();
 
         // creating the window
         Window window = new Window(mazeName+" with "+solver+" (reduce: "+reduce+")", maze.getNewW()+25, maze.getNewH()+50);
