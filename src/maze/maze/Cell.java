@@ -3,6 +3,8 @@ package maze.maze;
 import maze.math.Coordinates;
 import maze.math.Node;
 
+import java.awt.*;
+
 public class Cell{
     // Coordinates
     private Coordinates coordinates;
@@ -18,8 +20,8 @@ public class Cell{
 
 
     public enum CellType {
-        WALL,
-        PATH;
+        WALL(new Color(0, 0, 0)),
+        PATH(new Color(255, 255, 255));
 
 //        @Override
 //        public String toString() {
@@ -28,6 +30,19 @@ public class Cell{
 //            else
 //                return " ";
 //        }
+
+        private Color color;
+        CellType(Color color){
+            this.color = color;
+        }
+
+        public Color getColor() {
+            return color;
+        }
+
+        public int getInt(){
+            return color.getRGB();
+        }
     }
 
     public void setNode(Node node) {

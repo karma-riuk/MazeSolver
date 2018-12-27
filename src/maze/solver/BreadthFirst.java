@@ -1,14 +1,9 @@
 package maze.solver;
 
-import com.sun.xml.internal.ws.api.ha.StickyFeature;
 import maze.math.Coordinates;
 import maze.math.Node;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 

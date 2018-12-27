@@ -1,7 +1,9 @@
-Solution length: 319
-Nodes explored: 21853
-Node count: 27296
-Time taken to initialize the maze: 0 seconds
-Time taken to solve the maze: 0 seconds
+Node count: 73726
+
+Time taken to initialize the maze: 11 seconds
+Time taken to solve the maze: 10 seconds
 Time taken to create the image of the solution: 0 seconds
-Total time elapsed: 0
+Total time elapsed: 23
+
+Solution size: 904
+Nodes explored: 66844

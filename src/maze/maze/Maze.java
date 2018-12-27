@@ -39,9 +39,11 @@ public class Maze {
     // solved maze
     private BufferedImage imageSolved;
     // maze structure with cells
-    private Cell[][] maze;
+//    private Cell[][] maze;
+    private boolean[][] maze;
     // The solution in coordinates
-    private List<Cell> solution;
+//    private List<Cell> solution;
+    private List<Coordinates> solution;
     // nodes
     private List<Node> nodes;
 
@@ -81,16 +83,22 @@ public class Maze {
         newH = 1000;
         newW = (newH*width)/height;
 
-        // create a cell version of the image, to be easier to manipulate
-        maze = new Cell[height][width];
-        for (int y = 0; y < height; y++) {
-            for (int x = 0; x < width; x++) {
-                if (image.getRGB(x, y) == Color.BLACK.getRGB())
-                    maze[y][x] = new Cell(new Coordinates(x, y), Cell.CellType.WALL);
-                else
-                    maze[y][x] = new Cell(new Coordinates(x, y), Cell.CellType.PATH);
+        this.maze = new boolean[height][width];
+        for (int i = 0; i < maze.length; i++) {
+            for (int j = 0; j < maze[i].length; j++) {
+                maze[i][j] = false;
             }
         }
+        // create a cell version of the image, to be easier to manipulate
+//        maze = new Cell[height][width];
+//        for (int y = 0; y < height; y++) {
+//            for (int x = 0; x < width; x++) {
+//                if (image.getRGB(x, y) == Color.BLACK.getRGB())
+//                    maze[y][x] = new Cell(new Coordinates(x, y), Cell.CellType.WALL);
+//                else
+//                    maze[y][x] = new Cell(new Coordinates(x, y), Cell.CellType.PATH);
+//            }
+//        }
     }
 
     /**
@@ -102,17 +110,22 @@ public class Maze {
         int entryCount, exitCount, leftPathCount, rightPathCount;
         entryCount = exitCount = leftPathCount = rightPathCount = 0;
         for (int i = 0; i < width; i++) {
-            if (maze[0][i].getCellType() == Cell.CellType.PATH)
+//            if (maze[0][i].getCellType() == Cell.CellType.PATH)
+            if(image.getRGB(i, 0) == Cell.CellType.PATH.getInt()) //uncomment
                 entryCount++;
-            if (maze[height - 1][i].getCellType() == Cell.CellType.PATH)
+//            if (maze[height - 1][i].getCellType() == Cell.CellType.PATH)
+            if(image.getRGB(i, height - 1) == Cell.CellType.PATH.getInt()) //uncomment
                 exitCount++;
         }
         for (int i = 0; i < height; i++) {
-            if (maze[i][0].getCellType() == Cell.CellType.PATH)
+//            if (maze[i][0].getCellType() == Cell.CellType.PATH)
+            if (image.getRGB(0, i) == Cell.CellType.PATH.getInt()) //uncomment
                 leftPathCount++;
-            if (maze[i][width-1].getCellType() == Cell.CellType.PATH)
+//            if (maze[i][width-1].getCellType() == Cell.CellType.PATH)
+            if (image.getRGB(width-1, i) == Cell.CellType.PATH.getInt()) //uncomment
                 rightPathCount++;
         }
+//        System.out.println(entryCount+" "+exitCount+" "+leftPathCount+" "+rightPathCount+" ");
         return (entryCount == 1 && exitCount == 1 && leftPathCount == 0 && rightPathCount == 0);
 
     }
@@ -132,23 +145,26 @@ public class Maze {
 
         File file = new File("res/"+name+"/nodes");
         if (!file.exists()) { // if the binary file containg the nodes doesn't exist, then create the nodes
-            Cell.CellType wall = Cell.CellType.WALL;
-            Cell.CellType path = Cell.CellType.PATH;
+//            Cell.CellType wall = Cell.CellType.WALL;
+            int wall = Cell.CellType.WALL.getInt();
+//            Cell.CellType path = Cell.CellType.PATH;
+            int path = Cell.CellType.PATH.getInt();
             for (int y = 0; y < height; y++) {
                 for (int x = 1; x < width - 1; x++) {
 //                boolean shouldAdd = true;
-                    if (maze[y][x].getCellType() == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
-                            ((y == 0 || y == height - 1) && maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == wall) // add the entrance/exit to the nodes
-                                    || (maze[y][x - 1].getCellType() == wall && maze[y][x + 1].getCellType() == path) // start of a corridor (horizontal)
-                                    || (maze[y - 1][x].getCellType() == wall && maze[y + 1][x].getCellType() == path) // start of a corridor (vertical)
-                                    || (maze[y][x + 1].getCellType() == wall && maze[y][x - 1].getCellType() == path) // end of a corridor (horizontal)
-                                    || (maze[y + 1][x].getCellType() == wall && maze[y - 1][x].getCellType() == path) // end of a corridor (vertical)
-                                    || (maze[y - 1][x].getCellType() == path && (maze[y][x + 1].getCellType() == path || maze[y][x - 1].getCellType() == path)) // junction where you come from north and can go either east or west (doesn't matter)
-                                    || (maze[y + 1][x].getCellType() == path && (maze[y][x + 1].getCellType() == path || maze[y][x - 1].getCellType() == path)) // junction where you come from south and can go either east or west (doesn't matter)
+                    if (image.getRGB(x, y) == path && ( // first check if the cell is a path cell (because it's impossible to have a node on a wall of a maze...) and then check the other conditions to know if a node should be added or not
+                            ((y == 0 || y == height - 1) && image.getRGB(1, y) == wall && image.getRGB(1, y) == wall) // add the entrance/exit to the nodes
+                                    || (image.getRGB(1, y) == wall && image.getRGB(1, y) == path) // start of a corridor (horizontal)
+                                    || (image.getRGB(x, 1) == wall && image.getRGB(x, 1) == path) // start of a corridor (vertical)
+                                    || (image.getRGB(1, y) == wall && image.getRGB(1, y) == path) // end of a corridor (horizontal)
+                                    || (image.getRGB(x, 1) == wall && image.getRGB(x, 1) == path) // end of a corridor (vertical)
+                                    || (image.getRGB(x, 1) == path && (image.getRGB(1, y) == path || image.getRGB(1, y) == path)) // junction where you come from north and can go either east or west (doesn't matter)
+                                    || (image.getRGB(x, 1) == path && (image.getRGB(1, y) == path || image.getRGB(1, y) == path)) // junction where you come from south and can go either east or west (doesn't matter)
                     )) {
                         Node node = new Node(new Coordinates(x, y)); // creating the node
                         nodes.add(node);
-                        maze[y][x].setNode(node);
+//                        maze[y][x].setNode(node);
+                        maze[y][x] = true;
                     }
                 }
             }
@@ -171,7 +187,7 @@ public class Maze {
         else{
             nodes.addAll(parseNodes(readBinaryFile()));
             for (Node node : nodes) {
-                maze[node.getPosition().getY()][node.getPosition().getX()].setNode(node);
+                maze[node.getPosition().getY()][node.getPosition().getX()] = true;
             }
             endTime = System.nanoTime();
             System.out.println("Time taken to read the nodes from binary file and create them: "+ ((endTime - startTime)/1000000000));
@@ -188,13 +204,13 @@ public class Maze {
         System.out.println("Time taken to link nodes together: "+ ((endTime - startTime)/1000000000));
 
 
-        if (reduce) {
-            System.out.println("Reducing...");
-            startTime = System.nanoTime();
-            reduce();
-            endTime = System.nanoTime();
-            System.out.println("Time taken to reduce them: "+ ((endTime - startTime)/1000000000));
-        }
+//        if (reduce) {
+//            System.out.println("Reducing...");
+//            startTime = System.nanoTime();
+//            reduce();
+//            endTime = System.nanoTime();
+//            System.out.println("Time taken to reduce them: "+ ((endTime - startTime)/1000000000));
+//        }
         System.out.println("Nodes count: "+nodes.size());
 //        System.out.println(this);
 
@@ -255,46 +271,46 @@ public class Maze {
         return data;
     }
 
-    private void reduce(Node node){
-        nodes.remove(node);
-        maze[node.getPosition().getY()][node.getPosition().getX()].setNode(null);
-        Node onlyChild = null;
+//    private void reduce(Node node){
+//        nodes.remove(node);
+//        maze[node.getPosition().getY()][node.getPosition().getX()].setNode(null);
+//        Node onlyChild = null;
+//
+//        for (Node child : node.getChildren()) {
+//            if (child != null)
+//                onlyChild = child;
+//        }
+//        onlyChild.removeConnectionWithIndex(Arrays.asList(onlyChild.getChildren()).indexOf(node));
+//        int nChilds = 0;
+//        for (Node child : onlyChild.getChildren()) {
+//            if (child != null)
+//                nChilds++;
+//        }
+//        if (nChilds <= 1){
+//            reduce(onlyChild);
+//        }
+//    }
 
-        for (Node child : node.getChildren()) {
-            if (child != null)
-                onlyChild = child;
-        }
-        onlyChild.removeConnectionWithIndex(Arrays.asList(onlyChild.getChildren()).indexOf(node));
-        int nChilds = 0;
-        for (Node child : onlyChild.getChildren()) {
-            if (child != null)
-                nChilds++;
-        }
-        if (nChilds <= 1){
-            reduce(onlyChild);
-        }
-    }
-
-    private void reduce(){
-        int nChilds;
-        List<Node> nodesToRemove = new ArrayList<>();
-        for (Node node : nodes) {
-            if (node.getPosition().getY() != 0 && node.getPosition().getY() != height-1 ) { //as before, don't remove start or end
-                nChilds = 0;
-                for (Node child : node.getChildren()) {
-                    if (child != null){
-                        nChilds ++;
-                    }
-                }
-                if (nChilds <= 1){
-                    nodesToRemove.add(node);
-                }
-            }
-        }
-        for (Node node : nodesToRemove) {
-            reduce(node);
-        }
-    }
+//    private void reduce(){
+//        int nChilds;
+//        List<Node> nodesToRemove = new ArrayList<>();
+//        for (Node node : nodes) {
+//            if (node.getPosition().getY() != 0 && node.getPosition().getY() != height-1 ) { //as before, don't remove start or end
+//                nChilds = 0;
+//                for (Node child : node.getChildren()) {
+//                    if (child != null){
+//                        nChilds ++;
+//                    }
+//                }
+//                if (nChilds <= 1){
+//                    nodesToRemove.add(node);
+//                }
+//            }
+//        }
+//        for (Node node : nodesToRemove) {
+//            reduce(node);
+//        }
+//    }
 
     private enum SearchOrientation{
         NORTH, WEST
@@ -313,25 +329,25 @@ public class Maze {
      * @param isBlocked (boolean): boolean to know if there is a wall between 2 nodes
      * @return (Object[2]): contains the future value that has to be assigned to possibleNode and isBlocked in linkNodes(Node node)
      */
-    private Object[] conditions(int y, int x, Node possibleNode, boolean isBlocked) {
-        Object[] ret = new Object[2];
-        Node possibleNode1 = possibleNode;
-        boolean isBlocked1 = isBlocked;
-        if (maze[y][x].getNode() != null) {
-            possibleNode1 = maze[y][x].getNode();
-            isBlocked1 = false;
-        } else if (possibleNode != null && maze[y][x].getCellType() == Cell.CellType.WALL){
-            possibleNode1 = null;
-            isBlocked1 = true;
-        }
-        ret[0] = possibleNode1;
-        ret[1] = isBlocked1;
-        return ret;
-    }
+//    private Object[] conditions(int y, int x, Node possibleNode, boolean isBlocked) {
+//        Object[] ret = new Object[2];
+//        Node possibleNode1 = possibleNode;
+//        boolean isBlocked1 = isBlocked;
+//        if (maze[y][x].getNode() != null) {
+//            possibleNode1 = maze[y][x].getNode();
+//            isBlocked1 = false;
+//        } else if (possibleNode != null && maze[y][x].getCellType() == Cell.CellType.WALL){
+//            possibleNode1 = null;
+//            isBlocked1 = true;
+//        }
+//        ret[0] = possibleNode1;
+//        ret[1] = isBlocked1;
+//        return ret;
+//    }
 
-    private boolean conditions(int y, int x){
-        return (maze[y][x].getCellType() != Cell.CellType.WALL);
-    }
+//    private boolean conditions(int y, int x){
+//        return (maze[y][x].getCellType() != Cell.CellType.WALL);
+//    }
 
     /**
      * Passes through all the previous cells (above the current cell or to the left of it), checks if there is a node in
@@ -354,19 +370,18 @@ public class Maze {
 
         for (int i = maxCount-1; i >= 0; i--){ // look behind the node (left side or up respectively)
             if (orientation == SearchOrientation.NORTH) {
-                if (maze[i][other].getCellType() == Cell.CellType.WALL) // if there is a wall and we still haven't found anything, just give up
+                if (image.getRGB(other, i) == Cell.CellType.WALL.getInt()) // if there is a wall and we still haven't found anything, just give up
                     break;
-                else if (maze[i][other].getNode() != null) {
-                    possibleNode = maze[i][other].getNode();
+                else if (maze[i][other]) {
+                    possibleNode = nodes.get(nodes.indexOf(new Node(new Coordinates(other , i))));
                     break;
                 }
-
             }
             else {
-                if (maze[other][i].getCellType() == Cell.CellType.WALL) // if there is a wall and we still haven't found anything, just give up
+                if (image.getRGB(i, other) == Cell.CellType.WALL.getInt()) // if there is a wall and we still haven't found anything, just give up
                     break;
-                else if (maze[other][i].getNode() != null){
-                    possibleNode = maze[other][i].getNode();
+                else if (maze[other][i]){
+                    possibleNode = nodes.get(nodes.indexOf(new Node(new Coordinates(i , other))));
                     break;
                 }
             }
@@ -407,9 +422,10 @@ public class Maze {
      * @param coordinates (List<Coordinates>): the list of cell coordinates that are part of the solution of the maze
      */
     public void addToSolution(List<Coordinates> coordinates){
-        for (Coordinates coordinate : coordinates) {
-            solution.add(maze[coordinate.getY()][coordinate.getX()]);
-        }
+        solution.addAll(coordinates);
+//        for (Coordinates coordinate : coordinates) {
+//            solution.add(maze[coordinate.getY()][coordinate.getX()]);
+//        }
     }
 
     public void makeSolvedImage(){
@@ -417,7 +433,7 @@ public class Maze {
         int path = Color.WHITE.getRGB();
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                if (maze[y][x].getCellType() == Cell.CellType.WALL)
+                if (image.getRGB(x, y) == Cell.CellType.WALL.getInt())
                     imageSolved.setRGB(x, y, wall);
                 else
                     imageSolved.setRGB(x, y, path);
@@ -428,9 +444,9 @@ public class Maze {
         int blue = 255;
         int color;
         int solutionSize = solution.size();
-        for (Cell cell : solution) {
+        for (Coordinates cell : solution) {
             color = (red << 16) | blue;
-            imageSolved.setRGB(cell.getCoordinates().getX(), cell.getCoordinates().getY(), color);
+            imageSolved.setRGB(cell.getX(), cell.getY(), color);
             red = (int) (255*((double) solution.indexOf(cell)/solutionSize));
             blue = (int) (255*((double) (solutionSize-solution.indexOf(cell))/solutionSize));
         }
@@ -446,7 +462,7 @@ public class Maze {
 
     public void makeFullSolution(){
         int i = 0;
-        List<Cell> toBeAdded;
+        List<Coordinates> toBeAdded;
         while (i < solution.size()-1){
             toBeAdded = getCorridorBetween(solution.get(i), solution.get(i+1));
             solution.addAll(i+1, toBeAdded);
@@ -454,31 +470,29 @@ public class Maze {
         }
     }
 
-    private List<Cell> getCorridorBetween(Cell cell1, Cell cell2){
-        List<Cell> ret = new ArrayList<>();
-        Coordinates c1 = cell1.getCoordinates();
-        Coordinates c2 = cell2.getCoordinates();
+    private List<Coordinates> getCorridorBetween(Coordinates c1, Coordinates c2){
+        List<Coordinates> ret = new ArrayList<>();
         if (c1.getX() - c2.getX() == 0 && c1.getY() - c2.getY() == 0) // if the cells are adjascent to each other there is no corridor
             return ret;
         else{
             if (c1.getX() - c2.getX() == 0) { // if the difference between there x is 0, that means they are on the same line
                 if (c1.getY() > c2.getY()){
                     for (int i = c1.getY()-1; i > c2.getY(); i--)
-                        ret.add(maze[i][c1.getX()]);
+                        ret.add(new Coordinates(c1.getX(), i));
                 }
                 else{
                     for (int i = c1.getY()+1; i < c2.getY(); i++)
-                        ret.add(maze[i][c1.getX()]);
+                        ret.add(new Coordinates(c1.getX(), i));
                 }
             }
             else if (c1.getY() - c2.getY() == 0){ // if they are not on the same line, then they are on the same column
                 if (c1.getX() > c2.getX()){
                     for (int i = c1.getX()-1; i > c2.getX(); i--)
-                        ret.add(maze[c1.getY()][i]);
+                        ret.add(new Coordinates(i, c1.getY()));
                 }
                 else {
                     for (int i = c1.getX() + 1; i < c2.getX(); i++)
-                        ret.add(maze[c1.getY()][i]);
+                        ret.add(new Coordinates(i, c1.getY()));
                 }
             }
             return ret;
@@ -546,17 +560,17 @@ public class Maze {
         String ret = "";
 
 
-        for (Cell[] row: maze){
-            for (Cell cell: row) {
-                if (cell.getCellType() == Cell.CellType.WALL)
-                    ret += "##";
-                else if (cell.getNode() != null)
-                    ret += "()";
-                else
-                    ret += "  ";
-            }
-            ret += "\n";
-        }
+//        for (Cell[] row: maze){
+//            for (Cell cell: row) {
+//                if (cell.getCellType() == Cell.CellType.WALL)
+//                    ret += "##";
+//                else if (cell.getNode() != null)
+//                    ret += "()";
+//                else
+//                    ret += "  ";
+//            }
+//            ret += "\n";
+//        }
 
 //        int lastRow=0;
 //        for (Node n : nodes) {
@@ -569,3 +583,4 @@ public class Maze {
         return ret;
     }
 }
+

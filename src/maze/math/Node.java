@@ -85,5 +85,15 @@ public class Node {
         return ret+" | ";
 //        return position.toString();
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (obj.getClass() != getClass())
+            return false;
+        Node other = (Node) obj;
+        return (other.getPosition().getX() == getPosition().getX() && other.getPosition().getY() == getPosition().getY());
+    }
 }
 
