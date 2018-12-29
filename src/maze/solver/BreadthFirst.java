@@ -40,7 +40,6 @@ public class BreadthFirst extends Solver{
                 }
             }
         }
-        System.out.println("solution found");
 
         LinkedList<Node> nodeSol = new LinkedList<>();
         Node curSol = end;

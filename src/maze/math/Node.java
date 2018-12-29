@@ -14,6 +14,9 @@ public class Node {
     private Node connectionEast = null;
     private Node connectionWest = null;
     private Node[] children;
+    // weight for A-Star solve, default to 1 so that it doesn't interfear with
+    // the other solvers
+    private double weight = 1d;
 
     public Node(Coordinates coordinates){
         this.position = coordinates;
@@ -73,6 +76,22 @@ public class Node {
 
     public Coordinates getPosition() {
         return position;
+    }
+
+    /**
+     * Setter for the wieght, since it's defaulted to 1, A-Star needs to reset
+     * to the accurate value
+     */
+    public void setWeight(double weight){
+        this.weight = weight;
+    }
+
+    /**
+     * Getter for the weight, used by maze.solver.AStar
+     * @return weight (float)
+     */
+    public double getWeight(){
+        return weight;
     }
 
     @Override
